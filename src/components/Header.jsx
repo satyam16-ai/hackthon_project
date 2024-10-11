@@ -1,33 +1,42 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeButton, setActiveButton] = useState(null);
+  const [activeButton, setActiveButton] = useState('');
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
-  // Close dropdown if clicked outside
+  const handleNavigation = (path) => {
+    console.log(`Navigating to ${path}`);
+    navigate(path);
+    setIsOpen(false); // Close the dropdown after navigation
+  };
+
+  const toggleDropdown = (button) => {
+    console.log(`Toggling dropdown for ${button}`);
+    if (activeButton === button && isOpen) {
+      setIsOpen(false);
+      setActiveButton('');
+    } else {
+      setActiveButton(button);
+      setIsOpen(true);
+    }
+  };
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !dropdownRef.current.querySelector(`:focus`) === event.target) {
+        console.log('Clicked outside dropdown');
         setIsOpen(false);
-        setActiveButton(null);
+        setActiveButton('');
       }
     };
-
+  
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const toggleDropdown = (button) => {
-    if (activeButton === button) {
-      setIsOpen(!isOpen);
-    } else {
-      setIsOpen(true);
-      setActiveButton(button);
-    }
-  };
 
   return (
     <header className="bg-green-600 text-white p-4">
@@ -54,12 +63,12 @@ const Header = () => {
         </div>
 
         <nav className="hidden md:flex space-x-6 items-center">
-          <a href="#home" className="hover:text-gray-200">Home</a>
-          <a href="#donate" className="hover:text-gray-200">Donate</a>
-          <a href="#ngos" className="hover:text-gray-200">NGOs</a>
-          <a href="#impact" className="hover:text-gray-200">Impact</a>
-          <a href="#about" className="hover:text-gray-200">About Us</a>
-          <a href="#contact" className="hover:text-gray-200">Contact</a>
+          <button onClick={() => handleNavigation('/home')} className="hover:text-gray-200">Home</button>
+          <button onClick={() => handleNavigation('/donate')} className="hover:text-gray-200">Donate</button>
+          <button onClick={() => handleNavigation('/ngos')} className="hover:text-gray-200">NGOs</button>
+          <button onClick={() => handleNavigation('/impact')} className="hover:text-gray-200">Impact</button>
+          <button onClick={() => handleNavigation('/about')} className="hover:text-gray-200">About Us</button>
+          <button onClick={() => handleNavigation('/contact')} className="hover:text-gray-200">Contact</button>
         </nav>
 
         <div className="hidden md:flex space-x-4">
@@ -72,8 +81,26 @@ const Header = () => {
             </button>
             {isOpen && activeButton === 'login' && (
               <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
-                <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">Donor</button>
-                <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">NGO</button>
+                <button
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    console.log('Navigating to /donor/login');
+                    handleNavigation('/donor/login'); 
+                  }}
+                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                >
+                  Donor
+                </button>
+                <button
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    console.log('Navigating to /ngo/login');
+                    handleNavigation('/ngo/login'); 
+                  }}
+                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                >
+                  NGO
+                </button>
               </div>
             )}
           </div>
@@ -87,8 +114,26 @@ const Header = () => {
             </button>
             {isOpen && activeButton === 'register' && (
               <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
-                <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">Donor</button>
-                <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">NGO</button>
+                <button
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    console.log('Navigating to /donor/register');
+                    handleNavigation('/donor/register'); 
+                  }}
+                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                >
+                  Donor
+                </button>
+                <button
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    console.log('Navigating to /ngo/register');
+                    handleNavigation('/ngo/register'); 
+                  }}
+                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                >
+                  NGO
+                </button>
               </div>
             )}
           </div>
@@ -97,12 +142,24 @@ const Header = () => {
 
       <div className={`${isOpen ? 'block' : 'hidden'} md:hidden mt-4`}>
         <ul className="space-y-4 text-center">
-          <li><a href="#home" className="block hover:text-gray-200">Home</a></li>
-          <li><a href="#donate" className="block hover:text-gray-200">Donate</a></li>
-          <li><a href="#ngos" className="block hover:text-gray-200">NGOs</a></li>
-          <li><a href="#impact" className="block hover:text-gray-200">Impact</a></li>
-          <li><a href="#about" className="block hover:text-gray-200">About Us</a></li>
-          <li><a href="#contact" className="block hover:text-gray-200">Contact</a></li>
+          <li>
+            <button onClick={() => handleNavigation('/home')} className="block hover:text-gray-200">Home</button>
+          </li>
+          <li>
+            <button onClick={() => handleNavigation('/donate')} className="block hover:text-gray-200">Donate</button>
+          </li>
+          <li>
+            <button onClick={() => handleNavigation('/ngos')} className="block hover:text-gray-200">NGOs</button>
+          </li>
+          <li>
+            <button onClick={() => handleNavigation('/impact')} className="block hover:text-gray-200">Impact</button>
+          </li>
+          <li>
+            <button onClick={() => handleNavigation('/about')} className="block hover:text-gray-200">About Us</button>
+          </li>
+          <li>
+            <button onClick={() => handleNavigation('/contact')} className="block hover:text-gray-200">Contact</button>
+          </li>
           <li>
             <div className="relative">
               <button
@@ -113,8 +170,26 @@ const Header = () => {
               </button>
               {isOpen && activeButton === 'login' && (
                 <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
-                  <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">Donor</button>
-                  <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">NGO</button>
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      console.log('Navigating to /donor/login');
+                      handleNavigation('/donor/login'); 
+                    }}
+                    className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                  >
+                    Donor
+                  </button>
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      console.log('Navigating to /ngo/login');
+                      handleNavigation('/ngo/login'); 
+                    }}
+                    className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                  >
+                    NGO
+                  </button>
                 </div>
               )}
             </div>
@@ -129,8 +204,26 @@ const Header = () => {
               </button>
               {isOpen && activeButton === 'register' && (
                 <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
-                  <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">Donor</button>
-                  <button className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100">NGO</button>
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      console.log('Navigating to /donor/register');
+                      handleNavigation('/donor/register'); 
+                    }}
+                    className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                  >
+                    Donor
+                  </button>
+                  <button
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      console.log('Navigating to /ngo/register');
+                      handleNavigation('/ngo/register'); 
+                    }}
+                    className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                  >
+                    NGO
+                  </button>
                 </div>
               )}
             </div>

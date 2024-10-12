@@ -1,54 +1,65 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const DonorRegister = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '', // New field for confirming password
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "", // New field for confirming password
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
     profilePicture: null, // New field for profile picture
     termsAccepted: false, // New field for terms and conditions
   });
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleFileChange = (e) => {
+    const file = e.target.files[0];
     setFormData({
       ...formData,
-      profilePicture: e.target.files[0], // Store the selected file
+      profilePicture: file,
     });
-  };
 
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Password validation: Check if password is at least 8 characters
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError("Password must be at least 8 characters long");
       return;
     }
 
     // Confirm Password validation: Check if both passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
-    setError(''); // Clear errors if validation passes
+    setError(""); // Clear errors if validation passes
     // Add further registration logic here
   };
 
@@ -75,7 +86,9 @@ const DonorRegister = () => {
 
           {/* Email */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Email</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Email
+            </label>
             <input
               type="email"
               name="email"
@@ -89,7 +102,9 @@ const DonorRegister = () => {
 
           {/* Password */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Password</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Password
+            </label>
             <input
               type="password"
               name="password"
@@ -99,11 +114,16 @@ const DonorRegister = () => {
               placeholder="Enter your password"
               required
             />
+            <p className="text-sm text-gray-500 mt-1">
+              Password must be at least 8 characters long
+            </p>
           </div>
 
           {/* Confirm Password */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Confirm Password</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Confirm Password
+            </label>
             <input
               type="password"
               name="confirmPassword"
@@ -117,7 +137,9 @@ const DonorRegister = () => {
 
           {/* Phone */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Phone</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Phone
+            </label>
             <input
               type="text"
               name="phone"
@@ -131,7 +153,9 @@ const DonorRegister = () => {
 
           {/* Address */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Address</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Address
+            </label>
             <input
               type="text"
               name="address"
@@ -159,7 +183,9 @@ const DonorRegister = () => {
 
           {/* State */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">State</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              State
+            </label>
             <input
               type="text"
               name="state"
@@ -173,7 +199,9 @@ const DonorRegister = () => {
 
           {/* Zip Code */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Zip Code</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Zip Code
+            </label>
             <input
               type="text"
               name="zipCode"
@@ -187,17 +215,53 @@ const DonorRegister = () => {
 
           {/* Profile Picture */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Profile Picture</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Profile Picture
+            </label>
             <input
               type="file"
               name="profilePicture"
               accept="image/*"
-              onChange={handleFileChange}
+              onChange={(e) => {
+                if (e.target.files.length === 0) {
+                  setFormData({ ...formData, profilePicture: null });
+                  setPreviewUrl(null);
+                  e.target.value = ""; // Reset the file input
+                } else {
+                  const file = e.target.files[0];
+                  if (file.size === 0) {
+                    setFormData({ ...formData, profilePicture: null });
+                    setPreviewUrl(null);
+                    e.target.value = ""; // Reset the file input
+                  } else {
+                    handleFileChange(e);
+                  }
+                }
+              }}
               className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              required
             />
+            {previewUrl && (
+              <div className="mt-2 relative">
+                <img
+                  src={previewUrl}
+                  alt="Profile Preview"
+                  className="w-32 h-32 object-cover rounded-full"
+                />
+                <button
+                  className="absolute top-0 right-0 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full"
+                  onClick={() => {
+                    setFormData({ ...formData, profilePicture: null });
+                    setPreviewUrl(null);
+                    document.querySelector(
+                      'input[name="profilePicture"]'
+                    ).value = ""; // Reset the file input
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            )}
           </div>
-
           {/* Terms and Conditions */}
           <div className="mb-4 flex items-center">
             <input
@@ -209,7 +273,13 @@ const DonorRegister = () => {
               required
             />
             <label className="text-gray-700 font-medium">
-              I accept the <Link to="/terms-and-conditions" className="text-green-600 hover:underline">Terms and Conditions</Link>
+              I accept the{" "}
+              <Link
+                to="/terms-and-conditions"
+                className="text-green-600 hover:underline"
+              >
+                Terms and Conditions
+              </Link>
             </label>
           </div>
 

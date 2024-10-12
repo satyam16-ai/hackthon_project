@@ -24,14 +24,28 @@ const NGORegister = () => {
     directorIdProof: null,
     financialReport: null,
     taxExemptionCert: null,
+    workingSector: '', // New field
+    logo: null, // Logo field
   });
+
+  const [logoPreview, setLogoPreview] = useState(null); // State to store logo preview
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.files[0] });
+    const file = e.target.files[0];
+    setFormData({ ...formData, [e.target.name]: file });
+
+    // For logo preview
+    if (e.target.name === 'logo' && file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -186,12 +200,48 @@ const NGORegister = () => {
           ))}
         </div>
 
-        {/* Submit Button */}
-        <div className="text-center">
-          <button type="submit" className="w-full py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition duration-200">
-            Submit NGO Registration
-          </button>
+        {/* Section 6: Working Sector */}
+        <div className="border-b pb-4">
+          <h3 className="text-xl font-semibold text-green-500 mb-4">Working Sector</h3>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Working Sector*</label>
+            <input
+              type="text"
+              name="workingSector"
+              value={formData.workingSector}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
         </div>
+
+        {/* Section 7: Logo Upload */}
+        <div className="mb-4">
+          <h3 className="text-xl font-semibold text-green-500 mb-4">Upload Logo</h3>
+          <div className="flex items-center">
+            <FaUpload className="mr-2 text-green-500" />
+            <input
+              type="file"
+              name="logo"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+            />
+          </div>
+          {logoPreview && (
+            <div className="mt-4">
+              <img src={logoPreview} alt="Logo Preview" className="w-32 h-32 object-cover rounded-md shadow-md" />
+            </div>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+        >
+          Register NGO
+        </button>
       </form>
     </div>
   );

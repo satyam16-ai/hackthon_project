@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaPaperclip, FaUpload, FaCheckCircle } from 'react-icons/fa';
+import { FaUpload, FaCheckCircle } from 'react-icons/fa';
 
 const NGORegister = () => {
   const [formData, setFormData] = useState({

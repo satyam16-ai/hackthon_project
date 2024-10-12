@@ -11,6 +11,8 @@ import NgoRegister from "./pages/NgoRegister";
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import PrivateRoute from './PrivateRoute';
+import TermsAndConditions from './pages/TermsAndConditions';
+
 
 import "./App.css";
 
@@ -42,6 +44,7 @@ export default function App() {
         <Route path="/donor/register" element={<Layout><DonorRegister /></Layout>} />
         <Route path="/ngo/register" element={<Layout><NgoRegister /></Layout>} />
         <Route path="*" element={<Layout><div>Page not found</div></Layout>} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       </Routes>
     </Router>
   );

@@ -38,13 +38,9 @@ const AdminLogin = () => {
     }
   };
 
-  // Render nothing or loading spinner until token validation is complete
+  // Render loading state only
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p>Loading...</p> {/* You can replace this with a loading spinner */}
-      </div>
-    );
+    return null; // Render nothing while loading (no components)
   }
 
   return (

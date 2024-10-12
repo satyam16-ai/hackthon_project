@@ -1,4 +1,3 @@
-// src/components/AdminDashboard.js
 import React from 'react';
 
 const AdminDashboard = () => {

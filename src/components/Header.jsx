@@ -63,8 +63,7 @@ const Header = () => {
         </div>
 
         <nav className="hidden md:flex space-x-6 items-center">
-          <button onClick={() => handleNavigation('/home')} className="hover:text-gray-200">Home</button>
-          <button onClick={() => handleNavigation('/donate')} className="hover:text-gray-200">Donate</button>
+        <button onClick={() => handleNavigation('/')} className="hover:text-gray-200">Home</button>          <button onClick={() => handleNavigation('/donate')} className="hover:text-gray-200">Donate</button>
           <button onClick={() => handleNavigation('/ngos')} className="hover:text-gray-200">NGOs</button>
           <button onClick={() => handleNavigation('/impact')} className="hover:text-gray-200">Impact</button>
           <button onClick={() => handleNavigation('/about')} className="hover:text-gray-200">About Us</button>
@@ -143,7 +142,7 @@ const Header = () => {
       <div className={`${isOpen ? 'block' : 'hidden'} md:hidden mt-4`}>
         <ul className="space-y-4 text-center">
           <li>
-            <button onClick={() => handleNavigation('/home')} className="block hover:text-gray-200">Home</button>
+            <button onClick={() => handleNavigation('/')} className="block hover:text-gray-200">Home</button>
           </li>
           <li>
             <button onClick={() => handleNavigation('/donate')} className="block hover:text-gray-200">Donate</button>

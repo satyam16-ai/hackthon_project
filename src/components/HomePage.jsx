@@ -6,6 +6,10 @@ import Testimonials from "./Testimonials";
 import HowItWorks from "./HowItWorks";
 import FeaturedNGOs from "./FeaturedNGOs";
 
+import AboutUs from './AboutUs';
+import Impact from './Impact';
+import Contact from './Contact';
+
 const HomePage = () => {
   return (
     <>
@@ -14,6 +18,11 @@ const HomePage = () => {
       <Features />
       <HowItWorks />
       <Testimonials />
+      <Impact />
+      <AboutUs />
+      <Contact/>
+      
+
     </>
   );
 };

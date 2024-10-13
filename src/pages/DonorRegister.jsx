@@ -1,23 +1,31 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth, db, storage } from "../Auth/firebaseConfig"; // Add Firebase storage import
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // For profile picture upload
 
 const DonorRegister = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "", // New field for confirming password
+    confirmPassword: "",
     phone: "",
     address: "",
     city: "",
     state: "",
     zipCode: "",
-    profilePicture: null, // New field for profile picture
-    termsAccepted: false, // New field for terms and conditions
+    profilePicture: null,
+    termsAccepted: false,
   });
 
   const [error, setError] = useState("");
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [loading, setLoading] = useState(false); // For form submission state
+  const navigate = useNavigate();
 
+  // Handle form input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -25,14 +33,11 @@ const DonorRegister = () => {
       [name]: type === "checkbox" ? checked : value,
     });
   };
-  const [previewUrl, setPreviewUrl] = useState(null);
 
+  // Handle profile picture changes
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    setFormData({
-      ...formData,
-      profilePicture: file,
-    });
+    setFormData({ ...formData, profilePicture: file });
 
     if (file) {
       const reader = new FileReader();
@@ -44,23 +49,75 @@ const DonorRegister = () => {
       setPreviewUrl(null);
     }
   };
-  const handleSubmit = (e) => {
+
+  // Validate phone number (optional, but recommended)
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  // Form submission handler
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Password validation: Check if password is at least 8 characters
+    if (!validatePhoneNumber(formData.phone)) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
     if (formData.password.length < 8) {
       setError("Password must be at least 8 characters long");
       return;
     }
 
-    // Confirm Password validation: Check if both passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
-    setError(""); // Clear errors if validation passes
-    // Add further registration logic here
+    setError("");
+    setLoading(true); // Indicate loading state
+
+    try {
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+
+      const user = userCredential.user;
+      let profilePictureUrl = null;
+
+      // Upload profile picture to Firebase Storage
+      if (formData.profilePicture) {
+        const storageRef = ref(storage, `profilePictures/${user.uid}`);
+        await uploadBytes(storageRef, formData.profilePicture);
+        profilePictureUrl = await getDownloadURL(storageRef);
+      }
+
+      // Save user data in Firestore
+      const userDocRef = doc(db, "DONORS", user.uid); // Store by user.uid instead of name
+      await setDoc(userDocRef, {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        profilePictureUrl,
+        termsAccepted: formData.termsAccepted,
+        createdAt: new Date(),
+      });
+
+      // Redirect to another page (e.g., Donor Dashboard) after successful registration
+      navigate("/donor-dashboard");
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false); // Stop loading after request
+    }
   };
 
   return (
@@ -86,9 +143,7 @@ const DonorRegister = () => {
 
           {/* Email */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Email
-            </label>
+            <label className="block text-gray-700 font-medium mb-2">Email</label>
             <input
               type="email"
               name="email"
@@ -102,9 +157,7 @@ const DonorRegister = () => {
 
           {/* Password */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Password
-            </label>
+            <label className="block text-gray-700 font-medium mb-2">Password</label>
             <input
               type="password"
               name="password"
@@ -137,9 +190,7 @@ const DonorRegister = () => {
 
           {/* Phone */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Phone
-            </label>
+            <label className="block text-gray-700 font-medium mb-2">Phone</label>
             <input
               type="text"
               name="phone"
@@ -153,9 +204,7 @@ const DonorRegister = () => {
 
           {/* Address */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Address
-            </label>
+            <label className="block text-gray-700 font-medium mb-2">Address</label>
             <input
               type="text"
               name="address"
@@ -183,9 +232,7 @@ const DonorRegister = () => {
 
           {/* State */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              State
-            </label>
+            <label className="block text-gray-700 font-medium mb-2">State</label>
             <input
               type="text"
               name="state"
@@ -199,9 +246,7 @@ const DonorRegister = () => {
 
           {/* Zip Code */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
-              Zip Code
-            </label>
+            <label className="block text-gray-700 font-medium mb-2">Zip Code</label>
             <input
               type="text"
               name="zipCode"
@@ -220,85 +265,59 @@ const DonorRegister = () => {
             </label>
             <input
               type="file"
-              name="profilePicture"
               accept="image/*"
-              onChange={(e) => {
-                if (e.target.files.length === 0) {
-                  setFormData({ ...formData, profilePicture: null });
-                  setPreviewUrl(null);
-                  e.target.value = ""; // Reset the file input
-                } else {
-                  const file = e.target.files[0];
-                  if (file.size === 0) {
-                    setFormData({ ...formData, profilePicture: null });
-                    setPreviewUrl(null);
-                    e.target.value = ""; // Reset the file input
-                  } else {
-                    handleFileChange(e);
-                  }
-                }
-              }}
-              className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              onChange={handleFileChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
             {previewUrl && (
-              <div className="mt-2 relative">
-                <img
-                  src={previewUrl}
-                  alt="Profile Preview"
-                  className="w-32 h-32 object-cover rounded-full"
-                />
-                <button
-                  className="absolute top-0 right-0 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-full"
-                  onClick={() => {
-                    setFormData({ ...formData, profilePicture: null });
-                    setPreviewUrl(null);
-                    document.querySelector(
-                      'input[name="profilePicture"]'
-                    ).value = ""; // Reset the file input
-                  }}
-                >
-                  ×
-                </button>
-              </div>
+              <img
+                src={previewUrl}
+                alt="Profile Preview"
+                className="mt-2 w-32 h-32 object-cover rounded-full mx-auto"
+              />
             )}
           </div>
+
           {/* Terms and Conditions */}
-          <div className="mb-4 flex items-center">
-            <input
-              type="checkbox"
-              name="termsAccepted"
-              checked={formData.termsAccepted}
-              onChange={handleChange}
-              className="mr-2"
-              required
-            />
-            <label className="text-gray-700 font-medium">
-              I accept the{" "}
-              <Link
-                to="/terms-and-conditions"
-                className="text-green-600 hover:underline"
-              >
-                Terms and Conditions
-              </Link>
+          <div className="mb-4">
+            <label className="inline-flex items-center">
+              <input
+                type="checkbox"
+                name="termsAccepted"
+                checked={formData.termsAccepted}
+                onChange={handleChange}
+                className="form-checkbox h-5 w-5 text-green-500"
+                required
+              />
+              <span className="ml-2 text-gray-700">
+                I agree to the{" "}
+                <Link to="/terms" className="text-green-600 underline">
+                  Terms and Conditions
+                </Link>
+              </span>
             </label>
           </div>
 
           {/* Error Message */}
-          {error && (
-            <div className="mb-4 text-red-500 font-medium text-center">
-              {error}
-            </div>
-          )}
+          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
           {/* Submit Button */}
-          <div className="mb-6">
-            <button
-              type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-200"
-            >
-              Register
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading} // Disable button when loading
+            className={`w-full py-2 px-4 rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              loading ? "opacity-50" : ""
+            }`}
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+
+          <p className="mt-4 text-center text-gray-700">
+            Already have an account?{" "}
+            <Link to="/login" className="text-green-600 underline">
+              Login
+            </Link>
+          </p>
         </form>
       </div>
     </div>

@@ -12,7 +12,7 @@ import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import PrivateRoute from './PrivateRoute';
 import TermsAndConditions from './pages/TermsAndConditions';
-
+import "../src/Auth/firebaseConfig"
 
 import "./App.css";
 

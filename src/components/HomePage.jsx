@@ -5,7 +5,6 @@ import Features from "./Features";
 import Testimonials from "./Testimonials";
 import HowItWorks from "./HowItWorks";
 import FeaturedNGOs from "./FeaturedNGOs";
-
 import AboutUs from './AboutUs';
 import Impact from './Impact';
 import Contact from './Contact';
@@ -21,8 +20,6 @@ const HomePage = () => {
       <Impact />
       <AboutUs />
       <Contact/>
-      
-
     </>
   );
 };

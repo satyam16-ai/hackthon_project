@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeButton, setActiveButton] = useState('');
+  const [activeButton, setActiveButton] = useState("");
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -12,12 +12,17 @@ const Header = () => {
     navigate(path);
     setIsOpen(false); // Close the dropdown after navigation
   };
-
+  const handleScrollTo = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   const toggleDropdown = (button) => {
     console.log(`Toggling dropdown for ${button}`);
     if (activeButton === button && isOpen) {
       setIsOpen(false);
-      setActiveButton('');
+      setActiveButton("");
     } else {
       setActiveButton(button);
       setIsOpen(true);
@@ -25,16 +30,20 @@ const Header = () => {
   };
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !dropdownRef.current.querySelector(`:focus`) === event.target) {
-        console.log('Clicked outside dropdown');
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !dropdownRef.current.querySelector(`:focus`) === event.target
+      ) {
+        console.log("Clicked outside dropdown");
         setIsOpen(false);
-        setActiveButton('');
+        setActiveButton("");
       }
     };
-  
-    document.addEventListener('mousedown', handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -63,38 +72,72 @@ const Header = () => {
         </div>
 
         <nav className="hidden md:flex space-x-6 items-center">
-        <button onClick={() => handleNavigation('/')} className="hover:text-gray-200">Home</button>          <button onClick={() => handleNavigation('/donate')} className="hover:text-gray-200">Donate</button>
-          <button onClick={() => handleNavigation('/ngos')} className="hover:text-gray-200">NGOs</button>
-          <button onClick={() => handleNavigation('/impact')} className="hover:text-gray-200">Impact</button>
-          <button onClick={() => handleNavigation('/about')} className="hover:text-gray-200">About Us</button>
-          <button onClick={() => handleNavigation('/contact')} className="hover:text-gray-200">Contact</button>
+          <button
+            onClick={() => handleNavigation("/")}
+            className="hover:text-gray-200"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => handleNavigation("/donate")}
+            className="hover:text-gray-200"
+          >
+            Donate
+          </button>
+          <button
+            onClick={() => handleNavigation("/ngos")}
+            className="hover:text-gray-200"
+          >
+            NGOs
+          </button>
+          <button
+            onClick={() => handleScrollTo("impact")}
+            className="hover:text-gray-200"
+          >
+            Impact
+          </button>
+          <button
+            onClick={() => handleScrollTo("about")}
+            className="hover:text-gray-200"
+          >
+            About Us
+          </button>
+          <button
+            onClick={() => handleScrollTo("contact")}
+            className="hover:text-gray-200"
+          >
+            Contact
+          </button>
         </nav>
 
         <div className="hidden md:flex space-x-4">
           <div className="relative">
             <button
-              onClick={() => toggleDropdown('login')}
+              onClick={() => toggleDropdown("login")}
               className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
             >
               Login
             </button>
-            {isOpen && activeButton === 'login' && (
-              <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
+            {isOpen && activeButton === "login" && (
+              <div
+                ref={dropdownRef}
+                className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg"
+              >
                 <button
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    console.log('Navigating to /donor/login');
-                    handleNavigation('/donor/login'); 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log("Navigating to /donor/login");
+                    handleNavigation("/donor/login");
                   }}
                   className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                 >
                   Donor
                 </button>
                 <button
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    console.log('Navigating to /ngo/login');
-                    handleNavigation('/ngo/login'); 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log("Navigating to /ngo/login");
+                    handleNavigation("/ngo/login");
                   }}
                   className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                 >
@@ -106,28 +149,31 @@ const Header = () => {
 
           <div className="relative">
             <button
-              onClick={() => toggleDropdown('register')}
+              onClick={() => toggleDropdown("register")}
               className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
             >
               Register
             </button>
-            {isOpen && activeButton === 'register' && (
-              <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
+            {isOpen && activeButton === "register" && (
+              <div
+                ref={dropdownRef}
+                className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg"
+              >
                 <button
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    console.log('Navigating to /donor/register');
-                    handleNavigation('/donor/register'); 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log("Navigating to /donor/register");
+                    handleNavigation("/donor/register");
                   }}
                   className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                 >
                   Donor
                 </button>
                 <button
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    console.log('Navigating to /ngo/register');
-                    handleNavigation('/ngo/register'); 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log("Navigating to /ngo/register");
+                    handleNavigation("/ngo/register");
                   }}
                   className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                 >
@@ -139,51 +185,84 @@ const Header = () => {
         </div>
       </div>
 
-      <div className={`${isOpen ? 'block' : 'hidden'} md:hidden mt-4`}>
+      <div className={`${isOpen ? "block" : "hidden"} md:hidden mt-4`}>
         <ul className="space-y-4 text-center">
           <li>
-            <button onClick={() => handleNavigation('/')} className="block hover:text-gray-200">Home</button>
+            <button
+              onClick={() => handleNavigation("/")}
+              className="block hover:text-gray-200"
+            >
+              Home
+            </button>
           </li>
           <li>
-            <button onClick={() => handleNavigation('/donate')} className="block hover:text-gray-200">Donate</button>
+            <button
+              onClick={() => handleNavigation("/donate")}
+              className="block hover:text-gray-200"
+            >
+              Donate
+            </button>
           </li>
           <li>
-            <button onClick={() => handleNavigation('/ngos')} className="block hover:text-gray-200">NGOs</button>
+            <button
+              onClick={() => handleNavigation("/ngos")}
+              className="block hover:text-gray-200"
+            >
+              NGOs
+            </button>
           </li>
           <li>
-            <button onClick={() => handleNavigation('/impact')} className="block hover:text-gray-200">Impact</button>
+            <button
+              onClick={() => handleScrollTo("impact")}
+              className="block hover:text-gray-200"
+            >
+              Impact
+            </button>
           </li>
           <li>
-            <button onClick={() => handleNavigation('/about')} className="block hover:text-gray-200">About Us</button>
+            <button
+              onClick={() => handleScrollTo("about")}
+              className="block hover:text-gray-200"
+            >
+              About Us
+            </button>
           </li>
           <li>
-            <button onClick={() => handleNavigation('/contact')} className="block hover:text-gray-200">Contact</button>
+            <button
+              onClick={() => handleScrollTo("contact")}
+              className="block hover:text-gray-200"
+            >
+              Contact
+            </button>
           </li>
           <li>
             <div className="relative">
               <button
-                onClick={() => toggleDropdown('login')}
+                onClick={() => toggleDropdown("login")}
                 className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 w-full"
               >
                 Login
               </button>
-              {isOpen && activeButton === 'login' && (
-                <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
+              {isOpen && activeButton === "login" && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg"
+                >
                   <button
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      console.log('Navigating to /donor/login');
-                      handleNavigation('/donor/login'); 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Navigating to /donor/login");
+                      handleNavigation("/donor/login");
                     }}
                     className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                   >
                     Donor
                   </button>
                   <button
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      console.log('Navigating to /ngo/login');
-                      handleNavigation('/ngo/login'); 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Navigating to /ngo/login");
+                      handleNavigation("/ngo/login");
                     }}
                     className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                   >
@@ -196,28 +275,31 @@ const Header = () => {
           <li>
             <div className="relative">
               <button
-                onClick={() => toggleDropdown('register')}
+                onClick={() => toggleDropdown("register")}
                 className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 w-full"
               >
                 Register
               </button>
-              {isOpen && activeButton === 'register' && (
-                <div ref={dropdownRef} className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg">
+              {isOpen && activeButton === "register" && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg"
+                >
                   <button
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      console.log('Navigating to /donor/register');
-                      handleNavigation('/donor/register'); 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Navigating to /donor/register");
+                      handleNavigation("/donor/register");
                     }}
                     className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                   >
                     Donor
                   </button>
                   <button
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      console.log('Navigating to /ngo/register');
-                      handleNavigation('/ngo/register'); 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("Navigating to /ngo/register");
+                      handleNavigation("/ngo/register");
                     }}
                     className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
                   >

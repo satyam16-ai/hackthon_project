@@ -112,7 +112,7 @@ const DonorRegister = () => {
       });
 
       // Redirect to another page (e.g., Donor Dashboard) after successful registration
-      navigate("/donor-dashboard");
+      navigate('/donor-register-success');
     } catch (error) {
       setError(error.message);
     } finally {

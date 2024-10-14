@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { auth } from '../Auth/firebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 const DonorLogin = () => {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Add your login logic here
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      navigate('/');
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -40,6 +49,11 @@ const DonorLogin = () => {
               required
             />
           </div>
+          {error && (
+            <div className="mb-4 text-red-500">
+              {error}
+            </div>
+          )}
           <div className="mb-6">
             <button
               type="submit"
@@ -49,15 +63,6 @@ const DonorLogin = () => {
             </button>
           </div>
         </form>
-        <p className="text-center text-gray-500">
-          Don't have an account?{' '}
-          <span
-            className="text-green-600 hover:underline cursor-pointer"
-            onClick={() => navigate('/donor-register')}
-          >
-            Register here
-          </span>
-        </p>
       </div>
     </div>
   );

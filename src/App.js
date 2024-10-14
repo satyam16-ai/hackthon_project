@@ -9,11 +9,11 @@ import NgoLogin from "./pages/NgoLogin";
 import DonorRegister from "./pages/DonorRegister";
 import NgoRegister from "./pages/NgoRegister";
 import AdminLogin from './components/AdminLogin';
-import AdminDashboard from './components/AdminDashboard';
+import Dashboard from './components/Admin/Dashboard';
 import PrivateRoute from './PrivateRoute';
 import TermsAndConditions from './pages/TermsAndConditions';
-import "../src/Auth/firebaseConfig"
-
+import RegistrationSuccess from './pages/RegistrationSuccess'; // Import the RegistrationSuccess component
+import "../src/Auth/firebaseConfig";
 import "./App.css";
 
 // Layout component
@@ -33,7 +33,7 @@ export default function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={
           <PrivateRoute>
-            <AdminDashboard />
+            <Dashboard />
           </PrivateRoute>
         } />
 
@@ -43,8 +43,13 @@ export default function App() {
         <Route path="/ngo/login" element={<Layout><NgoLogin /></Layout>} />
         <Route path="/donor/register" element={<Layout><DonorRegister /></Layout>} />
         <Route path="/ngo/register" element={<Layout><NgoRegister /></Layout>} />
+        <Route path="/terms-and-conditions" element={<Layout><TermsAndConditions /></Layout>} />
+        
+        {/* Registration success route */}
+        <Route path="/donor-register-success" element={<Layout><RegistrationSuccess /></Layout>} />
+
+        {/* Catch-all route for 404 */}
         <Route path="*" element={<Layout><div>Page not found</div></Layout>} />
-        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       </Routes>
     </Router>
   );

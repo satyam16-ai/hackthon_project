@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { FaUpload, FaCheckCircle } from 'react-icons/fa';
+import { collection, addDoc } from 'firebase/firestore'; // Import Firestore methods
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db } from '../Auth/firebaseConfig';
 
+const storage = getStorage();
 const NGORegister = () => {
   const [formData, setFormData] = useState({
     ngoName: '',
@@ -24,11 +28,11 @@ const NGORegister = () => {
     directorIdProof: null,
     financialReport: null,
     taxExemptionCert: null,
-    workingSector: '', // New field
-    logo: null, // Logo field
+    workingSector: '',
+    logo: null,
   });
 
-  const [logoPreview, setLogoPreview] = useState(null); // State to store logo preview
+  const [logoPreview, setLogoPreview] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,7 +42,6 @@ const NGORegister = () => {
     const file = e.target.files[0];
     setFormData({ ...formData, [e.target.name]: file });
 
-    // For logo preview
     if (e.target.name === 'logo' && file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -48,10 +51,72 @@ const NGORegister = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add form validation and submit logic here
-    console.log(formData);
+    try {
+      // Prepare data for submission
+      const pendingData = {
+        ...formData,
+        status: 'pending', // Add status field for admin approval
+      };
+
+      // Upload files to Firebase Storage
+      const fileUploadPromises = [];
+      const fileFields = ['registrationCertificate', 'constitution', 'bankProof', 'directorIdProof', 'financialReport', 'taxExemptionCert', 'logo'];
+
+      fileFields.forEach((field) => {
+        if (formData[field]) {
+          const fileRef = ref(storage, `${field}/${formData[field].name}`);
+          fileUploadPromises.push(uploadBytes(fileRef, formData[field]));
+        }
+      });
+
+      const uploadResults = await Promise.all(fileUploadPromises);
+      const fileUrls = await Promise.all(uploadResults.map((result) => getDownloadURL(result.ref)));
+
+      // Update pendingData with file URLs
+      fileFields.forEach((field, index) => {
+        if (formData[field]) {
+          pendingData[field] = fileUrls[index];
+        }
+      });
+
+      // Save the data to Firestore
+      const docRef = await addDoc(collection(db, 'ngoRegistrations'), pendingData);
+      console.log('Document written with ID: ', docRef.id);
+
+      // Reset form or show success message here
+      setFormData({
+        ngoName: '',
+        registrationNumber: '',
+        establishmentDate: '',
+        email: '',
+        phoneNumber: '',
+        website: '',
+        address: '',
+        country: '',
+        city: '',
+        directorName: '',
+        bankName: '',
+        accountNumber: '',
+        ifscCode: '',
+        panTin: '',
+        fundingSources: '',
+        registrationCertificate: null,
+        constitution: null,
+        bankProof: null,
+        directorIdProof: null,
+        financialReport: null,
+        taxExemptionCert: null,
+        workingSector: '',
+        logo: null,
+      });
+      setLogoPreview(null); // Clear the logo preview
+
+      alert("Your registration has been submitted and is pending admin approval.");
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
   };
 
   return (
@@ -240,7 +305,7 @@ const NGORegister = () => {
           type="submit"
           className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
         >
-          Register NGO
+          Submit Registration
         </button>
       </form>
     </div>

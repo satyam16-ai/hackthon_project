@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth } from '../Auth/firebaseConfig';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeButton, setActiveButton] = useState("");
+  const [userProfilePicture, setUserProfilePicture] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -12,12 +14,14 @@ const Header = () => {
     navigate(path);
     setIsOpen(false); // Close the dropdown after navigation
   };
+
   const handleScrollTo = (id) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
   const toggleDropdown = (button) => {
     console.log(`Toggling dropdown for ${button}`);
     if (activeButton === button && isOpen) {
@@ -28,6 +32,19 @@ const Header = () => {
       setIsOpen(true);
     }
   };
+
+  const handleUserProfilePicture = () => {
+    const user = auth.currentUser;
+    if (user) {
+      const profilePictureUrl = user.photoURL;
+      setUserProfilePicture(profilePictureUrl);
+    }
+  };
+
+  useEffect(() => {
+    handleUserProfilePicture();
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -111,135 +128,19 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex space-x-4">
-          <div className="relative">
-            <button
-              onClick={() => toggleDropdown("login")}
-              className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
-            >
-              Login
-            </button>
-            {isOpen && activeButton === "login" && (
-              <div
-                ref={dropdownRef}
-                className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg"
-              >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("Navigating to /donor/login");
-                    handleNavigation("/donor/login");
-                  }}
-                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
-                >
-                  Donor
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("Navigating to /ngo/login");
-                    handleNavigation("/ngo/login");
-                  }}
-                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
-                >
-                  NGO
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="relative">
-            <button
-              onClick={() => toggleDropdown("register")}
-              className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
-            >
-              Register
-            </button>
-            {isOpen && activeButton === "register" && (
-              <div
-                ref={dropdownRef}
-                className="absolute z-10 mt-2 w-40 bg-white shadow-lg rounded-lg"
-              >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("Navigating to /donor/register");
-                    handleNavigation("/donor/register");
-                  }}
-                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
-                >
-                  Donor
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("Navigating to /ngo/register");
-                    handleNavigation("/ngo/register");
-                  }}
-                  className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
-                >
-                  NGO
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className={`${isOpen ? "block" : "hidden"} md:hidden mt-4`}>
-        <ul className="space-y-4 text-center">
-          <li>
-            <button
-              onClick={() => handleNavigation("/")}
-              className="block hover:text-gray-200"
-            >
-              Home
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleNavigation("/donate")}
-              className="block hover:text-gray-200"
-            >
-              Donate
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleNavigation("/ngos")}
-              className="block hover:text-gray-200"
-            >
-              NGOs
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleScrollTo("impact")}
-              className="block hover:text-gray-200"
-            >
-              Impact
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleScrollTo("about")}
-              className="block hover:text-gray-200"
-            >
-              About Us
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleScrollTo("contact")}
-              className="block hover:text-gray-200"
-            >
-              Contact
-            </button>
-          </li>
-          <li>
+          {userProfilePicture ? (
+            <div className="relative">
+              <img
+                src={userProfilePicture}
+                alt=""
+                className="w-8 h-8 rounded-full"
+              />
+            </div>
+          ) : (
             <div className="relative">
               <button
                 onClick={() => toggleDropdown("login")}
-                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 w-full"
+                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
               >
                 Login
               </button>
@@ -271,12 +172,21 @@ const Header = () => {
                 </div>
               )}
             </div>
-          </li>
-          <li>
+          )}
+          {userProfilePicture ? (
+            <div className="relative">
+              <button
+                onClick={() => handleNavigation("/donor/profile")}
+                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
+              >
+                Profile
+              </button>
+            </div>
+          ) : (
             <div className="relative">
               <button
                 onClick={() => toggleDropdown("register")}
-                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 w-full"
+                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
               >
                 Register
               </button>
@@ -308,8 +218,95 @@ const Header = () => {
                 </div>
               )}
             </div>
-          </li>
-        </ul>
+          )}
+        </div>
+
+        <div className={`${isOpen ? "block" : "hidden"} md:hidden mt-4`}>
+          <ul className="space-y-4 text-center">
+            <li>
+              <button
+                onClick={() => handleNavigation("/")}
+                className="block hover:text-gray-200"
+              >
+                Home
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleNavigation("/donate")}
+                className="block hover:text-gray-200"
+              >
+                Donate
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleNavigation("/ngos")}
+                className="block hover:text-gray-200"
+              >
+                NGOs
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleScrollTo("impact")}
+                className="block hover:text-gray-200"
+              >
+                Impact
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleScrollTo("about")}
+                className="block hover:text-gray-200"
+              >
+                About Us
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleScrollTo("contact")}
+                className="block hover:text-gray-200"
+              >
+                Contact
+              </button>
+            </li>
+            <li>
+              {userProfilePicture ? (
+                <button
+                  onClick={() => handleNavigation("/donor/profile")}
+                  className="block hover:text-gray-200"
+                >
+                  Profile
+                </button>
+              ) : (
+                <button
+                  onClick={() => toggleDropdown("login")}
+                  className="block hover:text-gray-200"
+                >
+                  Login
+                </button>
+              )}
+            </li>
+            <li>
+              {userProfilePicture ? (
+                <button
+                  onClick={() => handleNavigation("/donor/profile")}
+                  className="block hover:text-gray-200"
+                >
+                  Profile
+                </button>
+              ) : (
+                <button
+                  onClick={() => toggleDropdown("register")}
+                  className="block hover:text-gray-200"
+                >
+                  Register
+                </button>
+              )}
+            </li>
+          </ul>
+        </div>
       </div>
     </header>
   );

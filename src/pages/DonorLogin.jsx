@@ -2,64 +2,111 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../Auth/firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import LoginSuccessCard from './LoginSuccessCard'; // Make sure the path is correct
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const DonorLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(null);
+  const [showSuccessCard, setShowSuccessCard] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      navigate('/');
+      await signInWithEmailAndPassword(auth, email, password);
+      setShowSuccessCard(true);
+      // Optionally handle "Remember Me" using local storage
+      if (rememberMe) {
+        localStorage.setItem('email', email);
+      }
     } catch (error) {
       setError(error.message);
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  if (showSuccessCard) {
+    return <LoginSuccessCard onComplete={() => navigate('/')} />;
+  }
+
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-r from-green-400 to-blue-500">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
-        <h2 className="text-2xl font-bold text-center text-green-600 mb-6">
+        <h2 className="text-3xl font-bold text-center text-green-600 mb-6">
           Donor Login
         </h2>
         <form onSubmit={handleLogin}>
+          {/* Email input */}
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Email</label>
+            <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
+              Email
+            </label>
             <input
               type="email"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your email"
+              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Enter your email"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Password</label>
+
+          {/* Password input */}
+          <div className="mb-6 relative">
+            <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+              Password
+            </label>
             <input
-              type="password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter your password"
+              type={showPassword ? 'text' : 'password'}
+              id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Enter your password"
               required
             />
-          </div>
-          {error && (
-            <div className="mb-4 text-red-500">
-              {error}
+            {/* Toggle Password Visibility Icon */}
+            <div
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
             </div>
-          )}
-          <div className="mb-6">
+          </div>
+
+          {/* Remember Me Checkbox */}
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={() => setRememberMe(!rememberMe)}
+              className="mr-2 leading-tight"
+            />
+            <label htmlFor="rememberMe" className="text-gray-700 text-sm font-bold">
+              Remember Me
+            </label>
+          </div>
+
+          {/* Error message */}
+          {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+
+          {/* Submit button */}
+          <div className="flex items-center justify-between">
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-200"
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
             >
-              Login
+              Sign In
             </button>
           </div>
         </form>

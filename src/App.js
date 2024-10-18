@@ -9,10 +9,10 @@ import NgoLogin from "./pages/NgoLogin";
 import DonorRegister from "./pages/DonorRegister";
 import NgoRegister from "./pages/NgoRegister";
 import AdminLogin from './components/AdminLogin';
-import Dashboard from './components/Admin/Dashboard';
+import AdminNGOVerification from './components/Admin/AdminNGOVerification';
 import PrivateRoute from './PrivateRoute';
 import TermsAndConditions from './pages/TermsAndConditions';
-import RegistrationSuccess from './pages/RegistrationSuccess'; // Import the RegistrationSuccess component
+import RegistrationSuccess from './pages/RegistrationSuccess';
 import "../src/Auth/firebaseConfig";
 import "./App.css";
 
@@ -33,7 +33,7 @@ export default function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={
           <PrivateRoute>
-            <Dashboard />
+            <AdminNGOVerification />
           </PrivateRoute>
         } />
 

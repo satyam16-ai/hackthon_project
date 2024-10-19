@@ -7,6 +7,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeButton, setActiveButton] = useState("");
   const [userProfilePicture, setUserProfilePicture] = useState(null);
+  const [userRole, setUserRole] = useState(null); // Add userRole state
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -45,6 +46,7 @@ const Header = () => {
     try {
       await signOut(auth);
       setUserProfilePicture(null);
+      setUserRole(null); // Reset userRole on logout
       navigate('/');
     } catch (error) {
       console.error("Error logging out: ", error);
@@ -52,12 +54,26 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       handleUserProfilePicture(user);
+      if (user) {
+        // Fetch user role from Firestore or another source
+        const userRole = await fetchUserRole(user.uid);
+        setUserRole(userRole);
+      }
     });
 
     return () => unsubscribe();
   }, []);
+
+  const fetchUserRole = async (uid) => {
+    // Fetch user role from Firestore or another source
+    // This is a placeholder function, replace with actual implementation
+    // Example:
+    // const userDoc = await getDoc(doc(db, 'users', uid));
+    // return userDoc.data().role;
+    return 'donor'; // Replace with actual role fetching logic
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -141,7 +157,7 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex space-x-4">
-          {userProfilePicture ? (
+          {userProfilePicture && userRole === 'donor' ? (
             <>
               <div className="relative">
                 <img
@@ -150,6 +166,12 @@ const Header = () => {
                   className="w-8 h-8 rounded-full"
                 />
               </div>
+              <button
+                onClick={() => handleNavigation("/donor/dashboard")}
+                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
+              >
+                Dashboard
+              </button>
               <button
                 onClick={handleLogout}
                 className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
@@ -280,14 +302,14 @@ const Header = () => {
               Contact
             </button>
           </li>
-          {userProfilePicture ? (
+          {userProfilePicture && userRole === 'donor' ? (
             <>
               <li>
                 <button
-                  onClick={() => handleNavigation("/donor/profile")}
+                  onClick={() => handleNavigation("/donor/dashboard")}
                   className="block hover:text-gray-200"
                 >
-                  Profile
+                  Dashboard
                 </button>
               </li>
               <li>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaUpload, FaCheckCircle } from 'react-icons/fa';
 import { collection, addDoc } from 'firebase/firestore'; // Import Firestore methods
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase Auth methods
 import { db } from '../Auth/firebaseConfig';
 
 const storage = getStorage();
@@ -30,9 +31,12 @@ const NGORegister = () => {
     taxExemptionCert: null,
     workingSector: '',
     logo: null,
+    password: '', // Add password field
+    confirmPassword: '', // Add confirm password field
   });
 
   const [logoPreview, setLogoPreview] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // Add show password state
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -53,11 +57,23 @@ const NGORegister = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const auth = getAuth();
+
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
     try {
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
+
       // Prepare data for submission
       const pendingData = {
         ...formData,
         status: 'pending', // Add status field for admin approval
+        uid: user.uid, // Add user UID to the data
       };
 
       // Upload files to Firebase Storage
@@ -110,12 +126,15 @@ const NGORegister = () => {
         taxExemptionCert: null,
         workingSector: '',
         logo: null,
+        password: '', // Reset password field
+        confirmPassword: '', // Reset confirm password field
       });
       setLogoPreview(null); // Clear the logo preview
 
       alert("Your registration has been submitted and is pending admin approval.");
     } catch (error) {
       console.error("Error adding document: ", error);
+      alert("Error registering NGO: " + error.message);
     }
   };
 
@@ -139,6 +158,43 @@ const NGORegister = () => {
               />
             </div>
           ))}
+          {/* Add password field */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Password*</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+          {/* Add confirm password field */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Confirm Password*</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+            />
+          </div>
+          {/* Add show password toggle */}
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              id="showPassword"
+              className="mr-2"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)}
+            />
+            <label htmlFor="showPassword" className="text-gray-700 font-medium">
+              Show Password
+            </label>
+          </div>
         </div>
 
         {/* Section 2: Address Information */}

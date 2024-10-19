@@ -10,11 +10,14 @@ import DonorRegister from "./pages/DonorRegister";
 import NgoRegister from "./pages/NgoRegister";
 import AdminLogin from './components/AdminLogin';
 import AdminNGOVerification from './components/Admin/AdminNGOVerification';
+import NgoStatusTracking from './pages/NgoStatusTracking'; // Import the new status tracking page
 import PrivateRoute from './PrivateRoute';
+import PrivateRouteStatus from './PrivateRouteStatus'; // Import the new private route component
 import TermsAndConditions from './pages/TermsAndConditions';
-import RegistrationSuccess from './pages/RegistrationSuccess';
+import RegistrationSuccess from './pages/RegistrationSuccess';// Import the NGOSetPassword component
 import "../src/Auth/firebaseConfig";
 import "./App.css";
+import { AuthProvider } from './contexts/Authcontext'; // Ensure the correct path
 
 // Layout component
 const Layout = ({ children }) => (
@@ -27,30 +30,39 @@ const Layout = ({ children }) => (
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Admin routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/dashboard" element={
-          <PrivateRoute>
-            <AdminNGOVerification />
-          </PrivateRoute>
-        } />
+    <AuthProvider> {/* Wrap the Router with AuthProvider */}
+      <Router>
+        <Routes>
+          {/* Admin routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/dashboard" element={
+            <PrivateRoute>
+              <AdminNGOVerification />
+            </PrivateRoute>
+          } />
+          
+          {/* Main layout routes */}
+          <Route path="/" element={<Layout><HomePage /></Layout>} />
+          <Route path="/donor/login" element={<Layout><DonorLogin /></Layout>} />
+          <Route path="/ngo/login" element={<Layout><NgoLogin /></Layout>} />
+          <Route path="/donor/register" element={<Layout><DonorRegister /></Layout>} />
+          <Route path="/ngo/register" element={<Layout><NgoRegister /></Layout>} />
+          <Route path="/terms-and-conditions" element={<Layout><TermsAndConditions /></Layout>} />
+          
+          {/* Registration success route */}
+          <Route path="/donor-register-success" element={<Layout><RegistrationSuccess /></Layout>} />
+          
+          {/* NGO status tracking route */}
+          <Route path="/ngo/status-tracking" element={
+            <PrivateRouteStatus>
+              <NgoStatusTracking />
+            </PrivateRouteStatus>
+          } /> {/* Add this route */}
 
-        {/* Main layout routes */}
-        <Route path="/" element={<Layout><HomePage /></Layout>} />
-        <Route path="/donor/login" element={<Layout><DonorLogin /></Layout>} />
-        <Route path="/ngo/login" element={<Layout><NgoLogin /></Layout>} />
-        <Route path="/donor/register" element={<Layout><DonorRegister /></Layout>} />
-        <Route path="/ngo/register" element={<Layout><NgoRegister /></Layout>} />
-        <Route path="/terms-and-conditions" element={<Layout><TermsAndConditions /></Layout>} />
-        
-        {/* Registration success route */}
-        <Route path="/donor-register-success" element={<Layout><RegistrationSuccess /></Layout>} />
-
-        {/* Catch-all route for 404 */}
-        <Route path="*" element={<Layout><div>Page not found</div></Layout>} />
-      </Routes>
-    </Router>
+          {/* Catch-all route for 404 */}
+          <Route path="*" element={<Layout><div>Page not found</div></Layout>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }

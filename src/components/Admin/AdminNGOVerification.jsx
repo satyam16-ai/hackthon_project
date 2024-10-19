@@ -5,11 +5,13 @@ import {
   deleteDoc,
   updateDoc,
   getDocs,
+  setDoc
 } from "firebase/firestore";
 import { db } from "../../Auth/firebaseConfig"; // Adjust import to your Firebase config file
 import emailjs from "emailjs-com"; // Make sure you have installed emailjs
 import { toast } from "react-toastify"; // Optional: For notifications on success or error
 import { FaCheck, FaTimes } from "react-icons/fa"; // Icons for buttons
+import { generateUniqueToken } from '../../utils/tokenGenerator';
 
 const AdminNGOVerification = () => {
   const [pendingNGOs, setPendingNGOs] = useState([]);
@@ -36,27 +38,44 @@ const AdminNGOVerification = () => {
   const approveNGO = async (ngoId, ngoEmail) => {
     try {
       // Update status in Firebase
-      await updateDoc(doc(db, "ngoRegistrations", ngoId), {
-        status: "approved",
+      await updateDoc(doc(db, 'ngoRegistrations', ngoId), {
+        status: 'approved',
       });
-
+  
+      // Generate a unique token
+      const token = generateUniqueToken();
+  
+      // Store the token in Firestore
+      await setDoc(doc(db, 'ngoTokens', token), {
+        ngoId,
+        email: ngoEmail,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Token expires in 24 hours
+      });
+  
+      // Create the password setup link
+      const setupLink = `http://localhost:3000/ngo/set-password/${token}`;
+      console.log(setupLink);
+      
+  
       // Send approval email using Email.js
       const emailParams = {
-        to_email: "satyamtiwari567890@gmail.com",
-        subject: "NGO Registration Approved",
-        message:
-          "Congratulations! Your NGO registration has been approved. You can now log in to your account.",
+        to_email: ngoEmail,
+        subject: 'NGO Registration Approved',
+        message: `Congratulations! Your NGO registration has been approved. Please set up your password using this link: ${setupLink}`,
       };
+      
       const response = await emailjs.send(
         "service_5odwgbs",
         "template_dea9mnj",
         emailParams,
         "pJpsO6ROzxj-A5two"
       );
+      
       if (response.status === 200) {
-        console.log("Email sent successfully");
-        toast.success("NGO approved and email sent successfully");
-
+        console.log(`Email sent successfully to NGO: ${ngoEmail}`);
+        toast.success('NGO approved and email sent!');
+        
         // Update the state to reflect the approval
         setPendingNGOs((prevNGOs) =>
           prevNGOs.map((ngo) =>
@@ -64,16 +83,12 @@ const AdminNGOVerification = () => {
           )
         );
       } else {
-        console.warn(
-          `Email sent with status: ${response.status}. Text: ${response.text}`
-        );
-        toast.warning(
-          "NGO approved, but there might be an issue with the email."
-        );
+        console.warn(`Email sent with status: ${response.status}. Text: ${response.text}`);
+        toast.warning('NGO approved, but there might be an issue with the email.');
       }
     } catch (error) {
-      console.error("Error approving NGO:", error);
-      toast.error("Failed to approve NGO.");
+      console.error('Error approving NGO:', error);
+      toast.error('Failed to approve NGO.');
     }
   };
 

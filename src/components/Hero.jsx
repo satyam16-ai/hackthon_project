@@ -1,10 +1,13 @@
-import img1 from '../assets/image1.jpg'
-import img2 from '../assets/image2.jpg'
-import img3 from '../assets/image3.jpg'
-
+import React from 'react';
+import img1 from '../assets/image1.jpg';
+import img2 from '../assets/image2.jpg';
+import img3 from '../assets/image3.jpg';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Typewriter } from 'react-simple-typewriter';
+import { motion } from 'framer-motion';
+import { FaHandsHelping, FaHeartbeat, FaBook, FaTree, FaGraduationCap } from 'react-icons/fa'; // Import icons
 
 const Hero = () => {
   // Slick Slider Settings for autoplay and smooth transitions
@@ -21,27 +24,54 @@ const Hero = () => {
   };
 
   return (
-    <section className="bg-green-500 text-white py-12 px-4">
+    <section className="relative bg-green-500 text-white py-12 px-4 overflow-hidden">
+      {/* Animated Icons */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <FaHandsHelping className="absolute text-white opacity-20 animate-float" style={{ top: '10%', left: '20%', fontSize: '4rem' }} />
+        <FaHeartbeat className="absolute text-white opacity-20 animate-float" style={{ top: '30%', left: '90%', fontSize: '4rem' }} />
+        <FaBook className="absolute text-white opacity-10 animate-float" style={{ top: '50%', left: '40%', fontSize: '4rem' }} />
+        <FaTree className="absolute text-white opacity-10 animate-float" style={{ top: '70%', left: '10%', fontSize: '4rem' }} />
+        <FaGraduationCap className="absolute text-white opacity-10 animate-float" style={{ top: '80%', left: '90%', fontSize: '4rem' }} />
+      </div>
+
       <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-center md:justify-between gap-8">
         
         {/* Text Section */}
-        <div className="md:w-1/2 w-full text-center md:text-left">
+        <motion.div 
+          className="md:w-1/2 w-full text-center md:text-left"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1 }}
+        >
           <h1 className="text-4xl font-bold mb-4">
-            Empowering Change Through Transparent Donations
+            <Typewriter
+              words={['Empowering Change Through Transparent Donations']}
+              loop={0}
+              cursor
+              cursorStyle='_'
+              typeSpeed={70}
+              deleteSpeed={50}
+              delaySpeed={1000}
+            />
           </h1>
           <p className="text-lg mb-6">
             Helping those who need it most, transparently and effectively.
           </p>
           <a
             href="#donate"
-            className="bg-white text-green-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100"
+            className="bg-white text-green-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition duration-300"
           >
             Start Donating Now
           </a>
-        </div>
+        </motion.div>
 
         {/* Image Slider Section */}
-        <div className="md:w-1/2 w-full flex justify-center">
+        <motion.div 
+          className="md:w-1/2 w-full flex justify-center"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 1 }}
+        >
           <Slider {...settings} className="w-full">
             {/* Slide 1 */}
             <div>
@@ -68,7 +98,7 @@ const Hero = () => {
               />
             </div>
           </Slider>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

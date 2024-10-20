@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from '../Auth/firebaseConfig';
 import { signOut } from 'firebase/auth';
+import { FaHome, FaDonate, FaHandsHelping, FaChartLine, FaInfoCircle, FaPhone, FaHeart } from 'react-icons/fa'; // Import icons
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -96,7 +97,10 @@ const Header = () => {
   return (
     <header className="bg-green-600 text-white p-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <div className="text-2xl font-bold">Donation Platform</div>
+        <div className="flex items-center space-x-2 text-2xl font-bold">
+          <FaHeart className="text-white" />
+          <span className="font-pacifico">DONOR VISTA</span>
+        </div>
 
         <div className="md:hidden">
           <button onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Menu">
@@ -104,7 +108,7 @@ const Header = () => {
               className="w-6 h-6"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"
+              viewBox="0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
@@ -120,39 +124,45 @@ const Header = () => {
         <nav className="hidden md:flex space-x-6 items-center">
           <button
             onClick={() => handleNavigation("/")}
-            className="hover:text-gray-200"
+            className="hover:text-gray-200 flex items-center space-x-2 group"
           >
-            Home
+            <FaHome />
+            <span className="group-hover:animate-fadeIn">Home</span>
           </button>
           <button
             onClick={() => handleNavigation("/donate")}
-            className="hover:text-gray-200"
+            className="hover:text-gray-200 flex items-center space-x-2 group"
           >
-            Donate
+            <FaDonate />
+            <span className="group-hover:animate-fadeIn">Donate</span>
           </button>
           <button
             onClick={() => handleNavigation("/ngos")}
-            className="hover:text-gray-200"
+            className="hover:text-gray-200 flex items-center space-x-2 group"
           >
-            NGOs
+            <FaHandsHelping />
+            <span className="group-hover:animate-fadeIn">NGOs</span>
           </button>
           <button
             onClick={() => handleScrollTo("impact")}
-            className="hover:text-gray-200"
+            className="hover:text-gray-200 flex items-center space-x-2 group"
           >
-            Impact
+            <FaChartLine />
+            <span className="group-hover:animate-fadeIn">Impact</span>
           </button>
           <button
             onClick={() => handleScrollTo("about")}
-            className="hover:text-gray-200"
+            className="hover:text-gray-200 flex items-center space-x-2 group"
           >
-            About Us
+            <FaInfoCircle />
+            <span className="group-hover:animate-fadeIn">About Us</span>
           </button>
           <button
             onClick={() => handleScrollTo("contact")}
-            className="hover:text-gray-200"
+            className="hover:text-gray-200 flex items-center space-x-2 group"
           >
-            Contact
+            <FaPhone />
+            <span className="group-hover:animate-fadeIn">Contact</span>
           </button>
         </nav>
 
@@ -257,49 +267,55 @@ const Header = () => {
           <li>
             <button
               onClick={() => handleNavigation("/")}
-              className="block hover:text-gray-200"
+              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
             >
-              Home
+              <FaHome />
+              <span>Home</span>
             </button>
           </li>
           <li>
             <button
               onClick={() => handleNavigation("/donate")}
-              className="block hover:text-gray-200"
+              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
             >
-              Donate
+              <FaDonate />
+              <span>Donate</span>
             </button>
           </li>
           <li>
             <button
               onClick={() => handleNavigation("/ngos")}
-              className="block hover:text-gray-200"
+              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
             >
-              NGOs
+              <FaHandsHelping />
+              <span>NGOs</span>
             </button>
           </li>
           <li>
             <button
               onClick={() => handleScrollTo("impact")}
-              className="block hover:text-gray-200"
+              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
             >
-              Impact
+              <FaChartLine />
+              <span>Impact</span>
             </button>
           </li>
           <li>
             <button
               onClick={() => handleScrollTo("about")}
-              className="block hover:text-gray-200"
+              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
             >
-              About Us
+              <FaInfoCircle />
+              <span>About Us</span>
             </button>
           </li>
           <li>
             <button
               onClick={() => handleScrollTo("contact")}
-              className="block hover:text-gray-200"
+              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
             >
-              Contact
+              <FaPhone />
+              <span>Contact</span>
             </button>
           </li>
           {userProfilePicture && userRole === 'donor' ? (
@@ -307,9 +323,9 @@ const Header = () => {
               <li>
                 <button
                   onClick={() => handleNavigation("/donor/dashboard")}
-                  className="block hover:text-gray-200"
+                  className="block hover:text-gray-200 flex items-center justify-center space-x-2"
                 >
-                  Dashboard
+                  <span>Dashboard</span>
                 </button>
               </li>
               <li>

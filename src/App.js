@@ -18,7 +18,8 @@ import RegistrationSuccess from './pages/RegistrationSuccess';// Import the NGOS
 import "../src/Auth/firebaseConfig";
 import "./App.css";
 import { AuthProvider } from './contexts/Authcontext'; 
-import StartDonatingPage from './pages/Donor/StartDonatingPage';// Ensure the correct path
+import StartDonatingPage from './pages/Donor/StartDonatingPage';
+import NGOsPage from './pages/NGOsPage';// Ensure the correct path
 
 // Layout component
 const Layout = ({ children }) => (
@@ -51,8 +52,8 @@ export default function App() {
           <Route path="/terms-and-conditions" element={<Layout><TermsAndConditions /></Layout>} />
           <Route path='/startdonating' element={<StartDonatingPage/>} />
           {/* Registration success route */}
-          <Route path="/donor-register-success" element={<Layout><RegistrationSuccess /></Layout>} />
-          
+          <Route path="/NGO-register-success" element={<RegistrationSuccess />} />
+          <Route path='/ngos' element={<Layout><NGOsPage/></Layout>}/>
           {/* NGO status tracking route */}
           <Route path="/ngo/status-tracking" element={
             <PrivateRouteStatus>

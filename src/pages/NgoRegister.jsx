@@ -4,7 +4,7 @@ import { collection, addDoc } from 'firebase/firestore'; // Import Firestore met
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase Auth methods
 import { db } from '../Auth/firebaseConfig';
-
+import {  useNavigate } from "react-router-dom";
 const storage = getStorage();
 const NGORegister = () => {
   const [formData, setFormData] = useState({
@@ -37,6 +37,7 @@ const NGORegister = () => {
 
   const [logoPreview, setLogoPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false); // Add show password state
+  const nevigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -131,7 +132,7 @@ const NGORegister = () => {
       });
       setLogoPreview(null); // Clear the logo preview
 
-      alert("Your registration has been submitted and is pending admin approval.");
+      nevigate('/NGO-register-success');
     } catch (error) {
       console.error("Error adding document: ", error);
       alert("Error registering NGO: " + error.message);

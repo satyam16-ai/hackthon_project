@@ -10,7 +10,7 @@ import {
 import { db } from "../../Auth/firebaseConfig"; // Adjust import to your Firebase config file
 import emailjs from "emailjs-com"; // Make sure you have installed emailjs
 import { toast } from "react-toastify"; // Optional: For notifications on success or error
-import { FaCheck, FaTimes } from "react-icons/fa"; // Icons for buttons
+import { FaCalendarAlt,FaCheck, FaTimes, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIndustry, FaUniversity, FaGlobe, FaFlag, FaCity, FaIdCard, FaBank, FaKey, FaFileAlt, FaMoneyBillWave } from "react-icons/fa"; // Icons for details
 import { generateUniqueToken } from '../../utils/tokenGenerator';
 
 const AdminNGOVerification = () => {
@@ -142,15 +142,49 @@ const AdminNGOVerification = () => {
                 {ngo.ngoName}
               </h3>
               <p className="text-gray-600">
-                <strong>Director:</strong> {ngo.directorName}
+                <FaUser className="inline mr-2" /><strong>Director:</strong> {ngo.directorName}
                 <br />
-                <strong>Email:</strong> {ngo.email}
+                <FaEnvelope className="inline mr-2" /><strong>Email:</strong> {ngo.email}
                 <br />
-                <strong>Phone:</strong> {ngo.phoneNumber}
+                <FaPhone className="inline mr-2" /><strong>Phone:</strong> {ngo.phoneNumber}
                 <br />
-                <strong>Address:</strong> {ngo.address}, {ngo.city}, {ngo.state}{" "}
-                - {ngo.postalCode}
+                <FaMapMarkerAlt className="inline mr-2" /><strong>Address:</strong> {ngo.address}, {ngo.city}, {ngo.state} - {ngo.postalCode}
+                <br />
+                <FaIndustry className="inline mr-2" /><strong>Working Sector:</strong> {ngo.workingSector}
+                <br />
+                <FaUniversity className="inline mr-2" /><strong>Bank Account:</strong> {ngo.bankAccount}
+                <br />
+                <FaKey className="inline mr-2" /><strong>IFSC Code:</strong> {ngo.ifscCode}
+                <br />
+                <FaFileAlt className="inline mr-2" /><strong>Registration Number:</strong> {ngo.registrationNumber}
+                <br />
+                <FaCalendarAlt className="inline mr-2" /><strong>Establishment Date:</strong> {ngo.establishmentDate}
+                <br />
+                <FaGlobe className="inline mr-2" /><strong>Website:</strong> {ngo.website}
+                <br />
+                <FaFlag className="inline mr-2" /><strong>Country:</strong> {ngo.country}
+                <br />
+                <FaIdCard className="inline mr-2" /><strong>PAN/TIN:</strong> {ngo.panTin}
+                <br />
+                <FaMoneyBillWave className="inline mr-2" /><strong>Funding Sources:</strong> {ngo.fundingSources}
               </p>
+              <div className="mt-4">
+                <strong>Documents:</strong>
+                <ul className="list-disc list-inside">
+                  {['registrationCertificate', 'constitution', 'bankProof', 'directorIdProof', 'financialReport', 'taxExemptionCert', 'logo'].map((field, index) => (
+                    ngo[field] && (
+                      <li key={index}>
+                        <button
+                          onClick={() => window.open(ngo[field], '_blank')}
+                          className="text-blue-600 hover:underline"
+                        >
+                          <FaFileAlt className="inline mr-2" /> View {field.replace(/([A-Z])/g, ' $1')}
+                        </button>
+                      </li>
+                    )
+                  ))}
+                </ul>
+              </div>
               <div className="flex justify-between mt-4">
                 {ngo.status !== "approved" && (
                   <>

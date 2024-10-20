@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../Auth/firebaseConfig';
+import { useNavigate } from 'react-router-dom';
 
 const FeaturedNGOs = () => {
   const [ngos, setNgos] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNGOs = async () => {
@@ -26,6 +28,10 @@ const FeaturedNGOs = () => {
 
     fetchNGOs();
   }, []);
+
+  const handleViewAll = () => {
+    navigate('/ngos');
+  };
 
   return (
     <section className="py-12 bg-gray-50">
@@ -53,7 +59,10 @@ const FeaturedNGOs = () => {
 
         {/* View All Button */}
         <div className="text-center mt-8">
-          <button className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-700">
+          <button
+            onClick={handleViewAll}
+            className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-700"
+          >
             View All NGOs
           </button>
         </div>

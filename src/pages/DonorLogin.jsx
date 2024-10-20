@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../Auth/firebaseConfig';
+import { auth, db } from '../Auth/firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import LoginSuccessCard from './LoginSuccessCard'; // Make sure the path is correct
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
@@ -18,11 +19,22 @@ const DonorLogin = () => {
     e.preventDefault();
     setError(null);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setShowSuccessCard(true);
-      // Optionally handle "Remember Me" using local storage
-      if (rememberMe) {
-        localStorage.setItem('email', email);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Check if the user is a donor
+      const donorRef = doc(db, 'donors', user.uid);
+      const donorDoc = await getDoc(donorRef);
+
+      if (donorDoc.exists()) {
+        setShowSuccessCard(true);
+        // Optionally handle "Remember Me" using local storage
+        if (rememberMe) {
+          localStorage.setItem('email', email);
+        }
+      } else {
+        setError('No donor registration found for this user.');
+        await auth.signOut(); // Sign out the user if not a donor
       }
     } catch (error) {
       setError(error.message);
@@ -34,7 +46,7 @@ const DonorLogin = () => {
   };
 
   if (showSuccessCard) {
-    return <LoginSuccessCard onComplete={() => navigate('/')} />;
+    return <LoginSuccessCard onComplete={() => navigate('/donor/dashboard')} />;
   }
 
   return (

@@ -80,4 +80,4 @@ const Impact = () => {
   );
 };
 
-export default Impact;
+export default Impact;  

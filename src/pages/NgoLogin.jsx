@@ -8,18 +8,12 @@ const NgoLogin = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // Add confirm password state
-  const [showPassword, setShowPassword] = useState(false); // Add show password state
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
     const auth = getAuth();
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -38,6 +32,7 @@ const NgoLogin = () => {
         }
       } else {
         setError('No NGO registration found for this user.');
+        await auth.signOut(); // Sign out the user if not an NGO
       }
     } catch (error) {
       console.error('Error logging in:', error);
@@ -76,46 +71,22 @@ const NgoLogin = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Confirm Password</label>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div className="mb-4 flex items-center">
+            <label className="block text-gray-700 font-medium mb-2">Show Password</label>
             <input
               type="checkbox"
-              id="showPassword"
-              className="mr-2"
               checked={showPassword}
               onChange={() => setShowPassword(!showPassword)}
             />
-            <label htmlFor="showPassword" className="text-gray-700 font-medium">
-              Show Password
-            </label>
           </div>
-          <div className="mb-6">
+          <div className="flex items-center justify-between">
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
             >
-              Login
+              Sign In
             </button>
           </div>
         </form>
-        <p className="text-center text-gray-500">
-          Don't have an account?{' '}
-          <span
-            className="text-blue-600 hover:underline cursor-pointer"
-            onClick={() => navigate('/ngo-register')}
-          >
-            Register here
-          </span>
-        </p>
       </div>
     </div>
   );

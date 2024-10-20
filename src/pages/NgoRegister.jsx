@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaUpload, FaCheckCircle } from 'react-icons/fa';
-import { collection, addDoc } from 'firebase/firestore'; // Import Firestore methods
+import { collection, setDoc, doc } from 'firebase/firestore'; // Import Firestore methods
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase Auth methods
 import { db } from '../Auth/firebaseConfig';
@@ -98,9 +98,9 @@ const NGORegister = () => {
         }
       });
 
-      // Save the data to Firestore
-      const docRef = await addDoc(collection(db, 'ngoRegistrations'), pendingData);
-      console.log('Document written with ID: ', docRef.id);
+      // Save the data to Firestore with the UID as the document ID
+      await setDoc(doc(db, 'ngoRegistrations', user.uid), pendingData);
+      console.log('Document written with ID: ', user.uid);
 
       // Reset form or show success message here
       setFormData({

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { auth, db, storage } from "../Auth/firebaseConfig"; // Add Firebase storage import
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore"; // Import Firestore methods
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // For profile picture upload
 
 const DonorRegister = () => {
@@ -110,6 +110,17 @@ const DonorRegister = () => {
         termsAccepted: formData.termsAccepted,
         createdAt: new Date(),
       });
+
+      // Update the total number of donors in the summaryData collection
+      const summaryRef = doc(db, 'summaryData', 'summary');
+      const summaryDoc = await getDoc(summaryRef);
+
+      if (summaryDoc.exists()) {
+        const totalDonors = summaryDoc.data().totalDonors || 0;
+        await updateDoc(summaryRef, { totalDonors: totalDonors + 1 });
+      } else {
+        await setDoc(summaryRef, { totalDonors: 1 }, { merge: true });
+      }
 
       // Redirect to another page (e.g., Donor Dashboard) after successful registration
       navigate('/donor-register-success');

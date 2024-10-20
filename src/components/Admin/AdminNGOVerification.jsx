@@ -5,12 +5,13 @@ import {
   deleteDoc,
   updateDoc,
   getDocs,
-  setDoc
+  setDoc,
+  getDoc
 } from "firebase/firestore";
 import { db } from "../../Auth/firebaseConfig"; // Adjust import to your Firebase config file
 import emailjs from "emailjs-com"; // Make sure you have installed emailjs
 import { toast } from "react-toastify"; // Optional: For notifications on success or error
-import { FaCalendarAlt,FaCheck, FaTimes, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIndustry, FaUniversity, FaGlobe, FaFlag, FaCity, FaIdCard, FaBank, FaKey, FaFileAlt, FaMoneyBillWave } from "react-icons/fa"; // Icons for details
+import { FaCalendarAlt, FaCheck, FaTimes, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIndustry, FaUniversity, FaGlobe, FaFlag, FaCity, FaIdCard, FaBank, FaKey, FaFileAlt, FaMoneyBillWave } from "react-icons/fa"; // Icons for details
 import { generateUniqueToken } from '../../utils/tokenGenerator';
 
 const AdminNGOVerification = () => {
@@ -41,10 +42,21 @@ const AdminNGOVerification = () => {
       await updateDoc(doc(db, 'ngoRegistrations', ngoId), {
         status: 'approved',
       });
-  
+
+      // Update the total number of approved NGOs in the summaryData collection
+      const summaryRef = doc(db, 'summaryData', 'summary');
+      const summaryDoc = await getDoc(summaryRef);
+
+      if (summaryDoc.exists()) {
+        const totalApprovedNGOs = summaryDoc.data().totalApprovedNGOs || 0;
+        await updateDoc(summaryRef, { totalApprovedNGOs: totalApprovedNGOs + 1 });
+      } else {
+        await setDoc(summaryRef, { totalApprovedNGOs: 1 }, { merge: true });
+      }
+
       // Generate a unique token
       const token = generateUniqueToken();
-  
+
       // Store the token in Firestore
       await setDoc(doc(db, 'ngoTokens', token), {
         ngoId,
@@ -52,30 +64,29 @@ const AdminNGOVerification = () => {
         createdAt: new Date(),
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Token expires in 24 hours
       });
-  
+
       // Create the password setup link
       const setupLink = `http://localhost:3000/ngo/set-password/${token}`;
       console.log(setupLink);
-      
-  
+
       // Send approval email using Email.js
       const emailParams = {
         to_email: ngoEmail,
         subject: 'NGO Registration Approved',
         message: `Congratulations! Your NGO registration has been approved. Please set up your password using this link: ${setupLink}`,
       };
-      
+
       const response = await emailjs.send(
         "service_5odwgbs",
         "template_dea9mnj",
         emailParams,
         "pJpsO6ROzxj-A5two"
       );
-      
+
       if (response.status === 200) {
         console.log(`Email sent successfully to NGO: ${ngoEmail}`);
         toast.success('NGO approved and email sent!');
-        
+
         // Update the state to reflect the approval
         setPendingNGOs((prevNGOs) =>
           prevNGOs.map((ngo) =>

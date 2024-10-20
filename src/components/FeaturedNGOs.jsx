@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../Auth/firebaseConfig';
 import { useNavigate } from 'react-router-dom';
+import { FaCheckCircle } from 'react-icons/fa'; // Import the check circle icon
 
 const FeaturedNGOs = () => {
   const [ngos, setNgos] = useState([]);
@@ -42,7 +43,11 @@ const FeaturedNGOs = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {ngos.map((ngo, index) => (
-            <div key={index} className="bg-white shadow-lg rounded-lg p-6 text-center">
+            <div key={index} className="bg-white shadow-lg rounded-lg p-6 text-center relative">
+              <div className="absolute top-2 right-2 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs flex items-center">
+                <FaCheckCircle className="mr-1" />
+                Verified & Trusted
+              </div>
               <img
                 src={ngo.logo || 'https://via.placeholder.com/150'}
                 alt={`${ngo.ngoName} Logo`}

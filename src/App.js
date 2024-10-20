@@ -19,7 +19,8 @@ import "../src/Auth/firebaseConfig";
 import "./App.css";
 import { AuthProvider } from './contexts/Authcontext'; 
 import StartDonatingPage from './pages/Donor/StartDonatingPage';
-import NGOsPage from './pages/NGOsPage';// Ensure the correct path
+import NGOsPage from './pages/NGOsPage';
+import Donate from './pages/Donate';// Ensure the correct path
 
 // Layout component
 const Layout = ({ children }) => (
@@ -44,6 +45,7 @@ export default function App() {
           } />
           
           {/* Main layout routes */}
+          <Route path="/donate" element={<Donate/>}></Route>
           <Route path="/" element={<Layout><HomePage /></Layout>} />
           <Route path="/donor/login" element={<Layout><DonorLogin /></Layout>} />
           <Route path="/ngo/login" element={<Layout><NgoLogin /></Layout>} />

@@ -1,20 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from '../Auth/firebaseConfig';
-import { signOut } from 'firebase/auth';
-import { FaHome, FaDonate, FaHandsHelping, FaChartLine, FaInfoCircle, FaPhone, FaHeart } from 'react-icons/fa'; // Import icons
+import { useAuth } from '../contexts/Authcontext'; // Import useAuth hook
+import { FaHome, FaDonate, FaHandsHelping, FaChartLine, FaInfoCircle, FaPhone, FaHeart, FaSignInAlt, FaUserPlus, FaUser, FaUsers } from 'react-icons/fa';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeButton, setActiveButton] = useState("");
-  const [userProfilePicture, setUserProfilePicture] = useState(null);
-  const [userRole, setUserRole] = useState(null); // Add userRole state
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const { currentUser, logout } = useAuth(); // Use the AuthContext
 
   const handleNavigation = (path) => {
     navigate(path);
-    setIsOpen(false); // Close the dropdown after navigation
+    setIsOpen(false);
   };
 
   const handleScrollTo = (id) => {
@@ -34,46 +32,13 @@ const Header = () => {
     }
   };
 
-  const handleUserProfilePicture = (user) => {
-    if (user) {
-      const profilePictureUrl = user.photoURL;
-      setUserProfilePicture(profilePictureUrl);
-    } else {
-      setUserProfilePicture(null);
-    }
-  };
-
   const handleLogout = async () => {
     try {
-      await signOut(auth);
-      setUserProfilePicture(null);
-      setUserRole(null); // Reset userRole on logout
+      await logout();
       navigate('/');
     } catch (error) {
       console.error("Error logging out: ", error);
     }
-  };
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      handleUserProfilePicture(user);
-      if (user) {
-        // Fetch user role from Firestore or another source
-        const userRole = await fetchUserRole(user.uid);
-        setUserRole(userRole);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const fetchUserRole = async (uid) => {
-    // Fetch user role from Firestore or another source
-    // This is a placeholder function, replace with actual implementation
-    // Example:
-    // const userDoc = await getDoc(doc(db, 'users', uid));
-    // return userDoc.data().role;
-    return 'donor'; // Replace with actual role fetching logic
   };
 
   useEffect(() => {
@@ -108,7 +73,7 @@ const Header = () => {
               className="w-6 h-6"
               fill="none"
               stroke="currentColor"
-              viewBox="0 24 24"
+              viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
@@ -138,7 +103,7 @@ const Header = () => {
           </button>
           <button
             onClick={() => handleNavigation("/ngos")}
-            className="hover:text-gray-200 flex items-center space-x-2 group"
+            className=" hover:text-gray-200 flex items-center space-x-2 group"
           >
             <FaHandsHelping />
             <span className="group-hover:animate-fadeIn">NGOs</span>
@@ -167,11 +132,11 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex space-x-4">
-          {userProfilePicture && userRole === 'donor' ? (
+          {currentUser ? (
             <>
               <div className="relative">
                 <img
-                  src={userProfilePicture}
+                  src={currentUser.profilePictureUrl || '/default-avatar.png'}
                   alt="Profile"
                   className="w-8 h-8 rounded-full"
                 />
@@ -194,9 +159,10 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("login")}
-                  className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
+                  className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                 >
-                  Login
+                  <FaSignInAlt />
+                  <span>Login</span>
                 </button>
                 {isOpen && activeButton === "login" && (
                   <div
@@ -208,18 +174,20 @@ const Header = () => {
                         e.stopPropagation();
                         handleNavigation("/donor/login");
                       }}
-                      className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                      className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                     >
-                      Donor
+                      <FaUser />
+                      <span>Donor</span>
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleNavigation("/ngo/login");
                       }}
-                      className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                      className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                     >
-                      NGO
+                      <FaUsers />
+                      <span>NGO</span>
                     </button>
                   </div>
                 )}
@@ -227,9 +195,10 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("register")}
-                  className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
+                  className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                 >
-                  Register
+                  <FaUserPlus />
+                  <span>Register</span>
                 </button>
                 {isOpen && activeButton === "register" && (
                   <div
@@ -241,18 +210,20 @@ const Header = () => {
                         e.stopPropagation();
                         handleNavigation("/donor/register");
                       }}
-                      className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                      className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                     >
-                      Donor
+                      <FaUser />
+                      <span>Donor</span>
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleNavigation("/ngo/register");
                       }}
-                      className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                      className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                     >
-                      NGO
+                      <FaUsers />
+                      <span>NGO</span>
                     </button>
                   </div>
                 )}
@@ -260,159 +231,165 @@ const Header = () => {
             </>
           )}
         </div>
-      </div>
 
-      <div className={`${isOpen ? "block" : "hidden"} md:hidden mt-4`}>
-        <ul className="space-y-4 text-center">
-          <li>
-            <button
-              onClick={() => handleNavigation("/")}
-              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
-            >
-              <FaHome />
-              <span>Home</span>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleNavigation("/donate")}
-              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
-            >
-              <FaDonate />
-              <span>Donate</span>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleNavigation("/ngos")}
-              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
-            >
-              <FaHandsHelping />
-              <span>NGOs</span>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleScrollTo("impact")}
-              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
-            >
-              <FaChartLine />
-              <span>Impact</span>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleScrollTo("about")}
-              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
-            >
-              <FaInfoCircle />
-              <span>About Us</span>
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleScrollTo("contact")}
-              className="block hover:text-gray-200 flex items-center justify-center space-x-2"
-            >
-              <FaPhone />
-              <span>Contact</span>
-            </button>
-          </li>
-          {userProfilePicture && userRole === 'donor' ? (
-            <>
-              <li>
-                <button
-                  onClick={() => handleNavigation("/donor/dashboard")}
-                  className="block hover:text-gray-200 flex items-center justify-center space-x-2"
-                >
-                  <span>Dashboard</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={handleLogout}
-                  className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100"
-                >
-                  Logout
-                </button>
-              </li>
-            </>
-          ) : (
-            <>
-              <li>
-                <div className="relative">
+        <div className={`${isOpen ? "block" : "hidden"} md:hidden mt-4`}>
+          <ul className="space-y-4 text-center">
+            <li>
+              <button
+                onClick={() => handleNavigation("/")}
+                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+              >
+                <FaHome />
+                <span>Home</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleNavigation("/donate")}
+                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+              >
+                <FaDonate />
+                <span>Donate</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleNavigation("/ngos")}
+                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+              >
+                <FaHandsHelping />
+                <span>NGOs</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleScrollTo("impact")}
+                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+              >
+                <FaChartLine />
+                <span>Impact</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleScrollTo("about")}
+                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+              >
+                <FaInfoCircle />
+                <span>About Us</span>
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleScrollTo("contact")}
+                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+              >
+                <FaPhone />
+                <span>Contact</span>
+              </button>
+            </li>
+            {currentUser ? (
+              <>
+                <li>
                   <button
-                    onClick={() => toggleDropdown("login")}
+                    onClick={() => handleNavigation("/donor/dashboard")}
+                    className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+                  >
+                    <span>Dashboard</span>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
                     className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100"
                   >
-                    Login
+                    Logout
                   </button>
-                  {isOpen && activeButton === "login" && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <div className="relative">
+                    <button
+                      onClick={() => toggleDropdown("login")}
+                      className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                     >
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNavigation("/donor/login");
-                        }}
-                        className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                      <FaSignInAlt />
+                      <span>Login</span>
+                    </button>
+                    {isOpen && activeButton === "login" && (
+                      <div
+                        ref={dropdownRef}
+                        className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
                       >
-                        Donor
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNavigation("/ngo/login");
-                        }}
-                        className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
-                      >
-                        NGO
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </li>
-              <li>
-                <div className="relative">
-                  <button
-                    onClick={() => toggleDropdown("register")}
-                    className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100"
-                  >
-                    Register
-                  </button>
-                  {isOpen && activeButton === "register" && (
-                    <div
-                      ref={dropdownRef}
-                      className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNavigation("/donor/login");
+                          }}
+                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
+                        >
+                          <FaUser />
+                          <span>Donor</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNavigation("/ngo/login");
+                          }}
+                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
+                        >
+                          <FaUsers />
+                          <span>NGO</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </li>
+                <li>
+                  <div className="relative">
+                    <button
+                      onClick={() => toggleDropdown("register")}
+                      className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                     >
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNavigation("/donor/register");
-                        }}
-                        className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
+                      <FaUserPlus />
+                      <span>Register</span>
+                    </button>
+                    {isOpen && activeButton === "register" && (
+                      <div
+                        ref={dropdownRef}
+                        className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
                       >
-                        Donor
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNavigation("/ngo/register");
-                        }}
-                        className="block w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100"
-                      >
-                        NGO
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </li>
-            </>
-          )}
-        </ul>
-      </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNavigation("/donor/register");
+                          }}
+                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
+                        >
+                          <FaUser />
+                          <span>Donor</span>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNavigation("/ngo/register");
+                          }}
+                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
+                        >
+                          <FaUsers />
+                          <span>NGO</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+ </div>
     </header>
   );
 };

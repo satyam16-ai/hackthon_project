@@ -21,6 +21,7 @@ import { AuthProvider } from './contexts/Authcontext';
 import StartDonatingPage from './pages/Donor/StartDonatingPage';
 import NGOsPage from './pages/NGOsPage';
 import Donate from './pages/Donate';// Ensure the correct path
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 // Layout component
 const Layout = ({ children }) => (
@@ -45,13 +46,14 @@ export default function App() {
           } />
           
           {/* Main layout routes */}
-          <Route path="/donate" element={<Donate/>}></Route>
+          <Route path="/donate" element={<Layout><Donate/></Layout>}></Route>
           <Route path="/" element={<Layout><HomePage /></Layout>} />
           <Route path="/donor/login" element={<Layout><DonorLogin /></Layout>} />
           <Route path="/ngo/login" element={<Layout><NgoLogin /></Layout>} />
           <Route path="/donor/register" element={<Layout><DonorRegister /></Layout>} />
           <Route path="/ngo/register" element={<Layout><NgoRegister /></Layout>} />
           <Route path="/terms-and-conditions" element={<Layout><TermsAndConditions /></Layout>} />
+          <Route path='/privacy-policy' element={<Layout><PrivacyPolicy/></Layout>}/>
           <Route path='/startdonating' element={<StartDonatingPage/>} />
           {/* Registration success route */}
           <Route path="/NGO-register-success" element={<RegistrationSuccess />} />

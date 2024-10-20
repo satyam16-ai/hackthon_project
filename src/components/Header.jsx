@@ -231,165 +231,165 @@ const Header = () => {
             </>
           )}
         </div>
+      </div>
 
-        <div className={`${isOpen ? "block" : "hidden"} md:hidden mt-4`}>
-          <ul className="space-y-4 text-center">
-            <li>
-              <button
-                onClick={() => handleNavigation("/")}
-                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
-              >
-                <FaHome />
-                <span>Home</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleNavigation("/donate")}
-                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
-              >
-                <FaDonate />
-                <span>Donate</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleNavigation("/ngos")}
-                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
-              >
-                <FaHandsHelping />
-                <span>NGOs</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleScrollTo("impact")}
-                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
-              >
-                <FaChartLine />
-                <span>Impact</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleScrollTo("about")}
-                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
-              >
-                <FaInfoCircle />
-                <span>About Us</span>
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => handleScrollTo("contact")}
-                className=" hover:text-gray-200 flex items-center justify-center space-x-2"
-              >
-                <FaPhone />
-                <span>Contact</span>
-              </button>
-            </li>
-            {currentUser ? (
-              <>
-                <li>
+      <div className={`${isOpen ? "block" : "hidden"} md:hidden mt-4`}>
+        <ul className="space-y-4 text-center">
+          <li>
+            <button
+              onClick={() => handleNavigation("/")}
+              className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+            >
+              <FaHome />
+              <span>Home</span>
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigation("/donate")}
+              className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+            >
+              <FaDonate />
+              <span>Donate</span>
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigation("/ngos")}
+              className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+            >
+              <FaHandsHelping />
+              <span>NGOs</span>
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleScrollTo("impact")}
+              className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+            >
+              <FaChartLine />
+              <span>Impact</span>
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleScrollTo("about")}
+              className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+            >
+              <FaInfoCircle />
+              <span>About Us</span>
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleScrollTo("contact")}
+              className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+            >
+              <FaPhone />
+              <span>Contact</span>
+            </button>
+          </li>
+          {currentUser ? (
+            <>
+              <li>
+                <button
+                  onClick={() => handleNavigation("/donor/dashboard")}
+                  className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+                >
+                  <span>Dashboard</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100"
+                >
+                  Logout
+                </button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <div className="relative">
                   <button
-                    onClick={() => handleNavigation("/donor/dashboard")}
-                    className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+                    onClick={() => toggleDropdown("login")}
+                    className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                   >
-                    <span>Dashboard</span>
+                    <FaSignInAlt />
+                    <span>Login</span>
                   </button>
-                </li>
-                <li>
+                  {isOpen && activeButton === "login" && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNavigation("/donor/login");
+                        }}
+                        className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
+                      >
+                        <FaUser />
+                        <span>Donor</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNavigation("/ngo/login");
+                        }}
+                        className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
+                      >
+                        <FaUsers />
+                        <span>NGO</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </li>
+              <li>
+                <div className="relative">
                   <button
-                    onClick={handleLogout}
-                    className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100"
+                    onClick={() => toggleDropdown("register")}
+                    className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                   >
-                    Logout
+                    <FaUserPlus />
+                    <span>Register</span>
                   </button>
-                </li>
-              </>
-            ) : (
-              <>
-                <li>
-                  <div className="relative">
-                    <button
-                      onClick={() => toggleDropdown("login")}
-                      className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
+                  {isOpen && activeButton === "register" && (
+                    <div
+                      ref={dropdownRef}
+                      className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
                     >
-                      <FaSignInAlt />
-                      <span>Login</span>
-                    </button>
-                    {isOpen && activeButton === "login" && (
-                      <div
-                        ref={dropdownRef}
-                        className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNavigation("/donor/register");
+                        }}
+                        className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                       >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleNavigation("/donor/login");
-                          }}
-                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
-                        >
-                          <FaUser />
-                          <span>Donor</span>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleNavigation("/ngo/login");
-                          }}
-                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
-                        >
-                          <FaUsers />
-                          <span>NGO</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </li>
-                <li>
-                  <div className="relative">
-                    <button
-                      onClick={() => toggleDropdown("register")}
-                      className="bg-white text-green-600 w-full px-4 py-2 rounded-md hover:bg-gray-100 flex items-center space-x-2"
-                    >
-                      <FaUserPlus />
-                      <span>Register</span>
-                    </button>
-                    {isOpen && activeButton === "register" && (
-                      <div
-                        ref={dropdownRef}
-                        className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-lg"
+                        <FaUser />
+                        <span>Donor</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNavigation("/ngo/register");
+                        }}
+                        className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
                       >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleNavigation("/donor/register");
-                          }}
-                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
-                        >
-                          <FaUser />
-                          <span>Donor</span>
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleNavigation("/ngo/register");
-                          }}
-                          className=" w-full text-left px-4 py-2 text-green-600 rounded-md hover:bg-gray-100 flex items-center space-x-2"
-                        >
-                          <FaUsers />
-                          <span>NGO</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
- </div>
+                        <FaUsers />
+                        <span>NGO</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </li>
+            </>
+          )}
+        </ul>
+      </div>
     </header>
   );
 };

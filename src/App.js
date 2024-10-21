@@ -24,6 +24,10 @@ import Donate from './pages/Donate';// Ensure the correct path
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import DonorDashboard from './pages/Donor/DonorDashboard';
 import Payment from './pages/payment/Payment';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailure from './pages/PaymentFailure';
+import PrivateRoutePayment from './PrivateRoutePayment';
+
 // Layout component
 const Layout = ({ children }) => (
   <>
@@ -66,7 +70,17 @@ export default function App() {
               <NgoStatusTracking />
             </PrivateRouteStatus>
           } /> {/* Add this route */}
-          <Route path='/payment' element={<Layout><Payment/></Layout>}/>
+          
+          {/* Private route for payment with NGO ID */}
+          <Route path="/payment/:ngoId" element={
+            <PrivateRoutePayment>
+              <Layout><Payment /></Layout>
+            </PrivateRoutePayment>
+          } />
+
+          {/* Payment success and failure routes */}
+          <Route path="/payment-success" element={<Layout><PaymentSuccess /></Layout>} />
+          <Route path="/payment-failure" element={<Layout><PaymentFailure /></Layout>} />
 
           {/* Catch-all route for 404 */}
           <Route path="*" element={<Layout><div>Page not found</div></Layout>} />

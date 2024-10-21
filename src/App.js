@@ -22,7 +22,8 @@ import StartDonatingPage from './pages/Donor/StartDonatingPage';
 import NGOsPage from './pages/NGOsPage';
 import Donate from './pages/Donate';// Ensure the correct path
 import PrivacyPolicy from './pages/PrivacyPolicy';
-
+import DonorDashboard from './pages/Donor/DonorDashboard';
+import Payment from './pages/payment/Payment';
 // Layout component
 const Layout = ({ children }) => (
   <>
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/donate" element={<Layout><Donate/></Layout>}></Route>
           <Route path="/" element={<Layout><HomePage /></Layout>} />
           <Route path="/donor/login" element={<Layout><DonorLogin /></Layout>} />
+          <Route path="/donor/dashboard" element={<Layout><DonorDashboard /></Layout>} />
           <Route path="/ngo/login" element={<Layout><NgoLogin /></Layout>} />
           <Route path="/donor/register" element={<Layout><DonorRegister /></Layout>} />
           <Route path="/ngo/register" element={<Layout><NgoRegister /></Layout>} />
@@ -64,6 +66,7 @@ export default function App() {
               <NgoStatusTracking />
             </PrivateRouteStatus>
           } /> {/* Add this route */}
+          <Route path='/payment' element={<Layout><Payment/></Layout>}/>
 
           {/* Catch-all route for 404 */}
           <Route path="*" element={<Layout><div>Page not found</div></Layout>} />

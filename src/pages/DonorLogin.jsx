@@ -23,7 +23,7 @@ const DonorLogin = () => {
       const user = userCredential.user;
 
       // Check if the user is a donor
-      const donorRef = doc(db, 'donors', user.uid);
+      const donorRef = doc(db, 'DONORS', user.uid);
       const donorDoc = await getDoc(donorRef);
 
       if (donorDoc.exists()) {

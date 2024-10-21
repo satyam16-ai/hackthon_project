@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userRef = doc(db, 'DONORS', user.uid);
+        const userRef = doc(db, 'DONORS', user.uid); // Ensure the collection name is correct
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
           setCurrentUser({

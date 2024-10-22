@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../contexts/Authcontext'; // Import useAuth hook
+import { useAuth } from '../contexts/AuthContext'; // Import useAuth hook
 import { FaHome, FaDonate, FaHandsHelping, FaChartLine, FaInfoCircle, FaPhone, FaHeart, FaSignInAlt, FaUserPlus, FaUser, FaUsers } from 'react-icons/fa';
 
 const Header = () => {
@@ -141,12 +141,21 @@ const Header = () => {
                   className="w-8 h-8 rounded-full"
                 />
               </div>
-              <button
-                onClick={() => handleNavigation("/donor/dashboard")}
-                className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
-              >
-                Dashboard
-              </button>
+              {currentUser.role === 'ngo' ? (
+                <button
+                  onClick={() => handleNavigation("/ngo/dashboard")}
+                  className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
+                >
+                  Dashboard
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleNavigation("/donor/dashboard")}
+                  className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
+                >
+                  Dashboard
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 className="bg-white text-green-600 px-4 py-2 rounded-md hover:bg-gray-100"
@@ -292,12 +301,21 @@ const Header = () => {
           {currentUser ? (
             <>
               <li>
-                <button
-                  onClick={() => handleNavigation("/donor/dashboard")}
-                  className=" hover:text-gray-200 flex items-center justify-center space-x-2"
-                >
-                  <span>Dashboard</span>
-                </button>
+                {currentUser.role === 'ngo' ? (
+                  <button
+                    onClick={() => handleNavigation("/ngo/dashboard")}
+                    className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+                  >
+                    <span>Dashboard</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleNavigation("/donor/dashboard")}
+                    className=" hover:text-gray-200 flex items-center justify-center space-x-2"
+                  >
+                    <span>Dashboard</span>
+                  </button>
+                )}
               </li>
               <li>
                 <button

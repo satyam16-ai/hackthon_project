@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import LoginSuccessCard from './LoginSuccessCard'; // Make sure the path is correct
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 
 const DonorLogin = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ const DonorLogin = () => {
   const [error, setError] = useState(null);
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const navigate = useNavigate();
+  const { setCurrentUser } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,6 +29,11 @@ const DonorLogin = () => {
       const donorDoc = await getDoc(donorRef);
 
       if (donorDoc.exists()) {
+        setCurrentUser({
+          ...user,
+          ...donorDoc.data(),
+          role: 'donor'
+        });
         setShowSuccessCard(true);
         // Optionally handle "Remember Me" using local storage
         if (rememberMe) {

@@ -1,136 +1,58 @@
-import React, { useState, useEffect } from "react";
-import {
-  collection,
-  doc,
-  deleteDoc,
-  updateDoc,
-  getDocs,
-  setDoc,
-  getDoc
-} from "firebase/firestore";
-import { db } from "../../Auth/firebaseConfig"; // Adjust import to your Firebase config file
-import emailjs from "emailjs-com"; // Make sure you have installed emailjs
-import { toast } from "react-toastify"; // Optional: For notifications on success or error
-import { FaCalendarAlt, FaCheck, FaTimes, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIndustry, FaUniversity, FaGlobe, FaFlag, FaCity, FaIdCard, FaBank, FaKey, FaFileAlt, FaMoneyBillWave } from "react-icons/fa"; // Icons for details
-import { generateUniqueToken } from '../../utils/tokenGenerator';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../../Auth/firebaseConfig';
+import { FaCheck, FaTimes, FaFileAlt, FaMoneyBillWave } from 'react-icons/fa';
 
 const AdminNGOVerification = () => {
   const [pendingNGOs, setPendingNGOs] = useState([]);
+  const [fundRequests, setFundRequests] = useState([]);
+  const navigate = useNavigate();
 
-  // Fetch all pending NGOs from Firestore
   useEffect(() => {
     const fetchPendingNGOs = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "ngoRegistrations"));
-        const pending = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const querySnapshot = await getDocs(collection(db, 'ngoRegistrations'));
+        const pending = querySnapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((ngo) => ngo.status === 'pending'); // Filter for pending NGOs
         setPendingNGOs(pending);
       } catch (error) {
-        console.error("Error fetching pending NGOs:", error);
+        console.error('Error fetching pending NGOs:', error);
+      }
+    };
+
+    const fetchFundRequests = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'fundRequests'));
+        const requests = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setFundRequests(requests);
+      } catch (error) {
+        console.error('Error fetching fund requests:', error);
       }
     };
 
     fetchPendingNGOs();
+    fetchFundRequests();
   }, []);
 
-  // Approve NGO and send approval email
-  const approveNGO = async (ngoId, ngoEmail) => {
+  const handleApprove = async (ngoId) => {
     try {
-      // Update status in Firebase
-      await updateDoc(doc(db, 'ngoRegistrations', ngoId), {
-        status: 'approved',
-      });
-
-      // Update the total number of approved NGOs in the summaryData collection
-      const summaryRef = doc(db, 'summaryData', 'summary');
-      const summaryDoc = await getDoc(summaryRef);
-
-      if (summaryDoc.exists()) {
-        const totalApprovedNGOs = summaryDoc.data().totalApprovedNGOs || 0;
-        await updateDoc(summaryRef, { totalApprovedNGOs: totalApprovedNGOs + 1 });
-      } else {
-        await setDoc(summaryRef, { totalApprovedNGOs: 1 }, { merge: true });
-      }
-
-      // Generate a unique token
-      const token = generateUniqueToken();
-
-      // Store the token in Firestore
-      await setDoc(doc(db, 'ngoTokens', token), {
-        ngoId,
-        email: ngoEmail,
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Token expires in 24 hours
-      });
-
-      // Create the password setup link
-      const setupLink = `http://localhost:3000/ngo/set-password/${token}`;
-      console.log(setupLink);
-
-      // Send approval email using Email.js
-      const emailParams = {
-        to_email: ngoEmail,
-        subject: 'NGO Registration Approved',
-        message: `Congratulations! Your NGO registration has been approved. Please set up your password using this link: ${setupLink}`,
-      };
-
-      const response = await emailjs.send(
-        "service_5odwgbs",
-        "template_dea9mnj",
-        emailParams,
-        "pJpsO6ROzxj-A5two"
-      );
-
-      if (response.status === 200) {
-        console.log(`Email sent successfully to NGO: ${ngoEmail}`);
-        toast.success('NGO approved and email sent!');
-
-        // Update the state to reflect the approval
-        setPendingNGOs((prevNGOs) =>
-          prevNGOs.map((ngo) =>
-            ngo.id === ngoId ? { ...ngo, status: "approved" } : ngo
-          )
-        );
-      } else {
-        console.warn(`Email sent with status: ${response.status}. Text: ${response.text}`);
-        toast.warning('NGO approved, but there might be an issue with the email.');
-      }
+      const ngoRef = doc(db, 'ngoRegistrations', ngoId);
+      await updateDoc(ngoRef, { status: 'approved' });
+      setPendingNGOs(pendingNGOs.filter((ngo) => ngo.id !== ngoId)); // Remove approved NGO from pending list
     } catch (error) {
       console.error('Error approving NGO:', error);
-      toast.error('Failed to approve NGO.');
     }
   };
 
-  // Reject NGO, delete from Firebase, and send rejection email
-  const rejectNGO = async (ngoId, ngoEmail) => {
+  const handleReject = async (ngoId) => {
     try {
-      // Send rejection email
-      const emailParams = {
-        to_email: ngoEmail,
-        subject: "NGO Registration Rejected",
-        message:
-          "We regret to inform you that your NGO registration has been rejected.",
-      };
-      await emailjs.send(
-        "service_5odwgbs",
-        "template_dea9mnj",
-        emailParams,
-        "pJpsO6ROzxj-A5two"
-      );
-
-      // Delete NGO from Firebase after sending the email
-      await deleteDoc(doc(db, "ngoRegistrations", ngoId));
-      toast.success("NGO rejected and email sent!");
-
-      // Remove the NGO from the state
-      setPendingNGOs((prevNGOs) =>
-        prevNGOs.filter((ngo) => ngo.id !== ngoId)
-      );
+      const ngoRef = doc(db, 'ngoRegistrations', ngoId);
+      await updateDoc(ngoRef, { status: 'rejected' });
+      setPendingNGOs(pendingNGOs.filter((ngo) => ngo.id !== ngoId)); // Remove rejected NGO from pending list
     } catch (error) {
-      console.error("Error rejecting NGO:", error);
-      toast.error("Failed to reject NGO.");
+      console.error('Error rejecting NGO:', error);
     }
   };
 
@@ -139,89 +61,107 @@ const AdminNGOVerification = () => {
       <h2 className="text-4xl font-bold text-center text-green-700 mb-8">
         Pending NGO Registrations
       </h2>
-
+      <button
+        onClick={() => navigate('/admin/approved-ngos')}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 mb-6"
+      >
+        View Approved NGOs
+      </button>
       {pendingNGOs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pendingNGOs.map((ngo) => (
             <div
               key={ngo.id}
-              className={`bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 ${
-                ngo.status === "approved" ? "border-2 border-green-500" : ""
-              }`}
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
             >
               <h3 className="text-xl font-semibold text-gray-800 mb-4">
                 {ngo.ngoName}
               </h3>
               <p className="text-gray-600">
-                <FaUser className="inline mr-2" /><strong>Director:</strong> {ngo.directorName}
+                <strong>Director:</strong> {ngo.directorName}
                 <br />
-                <FaEnvelope className="inline mr-2" /><strong>Email:</strong> {ngo.email}
+                <strong>Email:</strong> {ngo.email}
                 <br />
-                <FaPhone className="inline mr-2" /><strong>Phone:</strong> {ngo.phoneNumber}
-                <br />
-                <FaMapMarkerAlt className="inline mr-2" /><strong>Address:</strong> {ngo.address}, {ngo.city}, {ngo.state} - {ngo.postalCode}
-                <br />
-                <FaIndustry className="inline mr-2" /><strong>Working Sector:</strong> {ngo.workingSector}
-                <br />
-                <FaUniversity className="inline mr-2" /><strong>Bank Account:</strong> {ngo.bankAccount}
-                <br />
-                <FaKey className="inline mr-2" /><strong>IFSC Code:</strong> {ngo.ifscCode}
-                <br />
-                <FaFileAlt className="inline mr-2" /><strong>Registration Number:</strong> {ngo.registrationNumber}
-                <br />
-                <FaCalendarAlt className="inline mr-2" /><strong>Establishment Date:</strong> {ngo.establishmentDate}
-                <br />
-                <FaGlobe className="inline mr-2" /><strong>Website:</strong> {ngo.website}
-                <br />
-                <FaFlag className="inline mr-2" /><strong>Country:</strong> {ngo.country}
-                <br />
-                <FaIdCard className="inline mr-2" /><strong>PAN/TIN:</strong> {ngo.panTin}
+                <strong>Phone:</strong> {ngo.phoneNumber}
                 <br />
                 <FaMoneyBillWave className="inline mr-2" /><strong>Funding Sources:</strong> {ngo.fundingSources}
+                <br />
+                <FaMoneyBillWave className="inline mr-2" /><strong>Requested Amount:</strong> {ngo.amount}
               </p>
               <div className="mt-4">
-                <strong>Documents:</strong>
+                <strong>Work Proof:</strong>
                 <ul className="list-disc list-inside">
-                  {['registrationCertificate', 'constitution', 'bankProof', 'directorIdProof', 'financialReport', 'taxExemptionCert', 'logo'].map((field, index) => (
-                    ngo[field] && (
-                      <li key={index}>
-                        <button
-                          onClick={() => window.open(ngo[field], '_blank')}
-                          className="text-blue-600 hover:underline"
-                        >
-                          <FaFileAlt className="inline mr-2" /> View {field.replace(/([A-Z])/g, ' $1')}
-                        </button>
-                      </li>
-                    )
-                  ))}
+                  {ngo.proofFile && (
+                    <li>
+                      <button
+                        onClick={() => window.open(ngo.proofFile, '_blank')}
+                        className="text-blue-600 hover:underline"
+                      >
+                        <FaFileAlt className="inline mr-2" /> View Work Proof
+                      </button>
+                    </li>
+                  )}
                 </ul>
               </div>
               <div className="flex justify-between mt-4">
-                {ngo.status !== "approved" && (
-                  <>
-                    <button
-                      onClick={() => approveNGO(ngo.id, ngo.email)}
-                      className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
-                    >
-                      <FaCheck className="mr-2" /> Approve
-                    </button>
-                    <button
-                      onClick={() => rejectNGO(ngo.id, ngo.email)}
-                      className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200"
-                    >
-                      <FaTimes className="mr-2" /> Reject
-                    </button>
-                  </>
-                )}
+                <button
+                  onClick={() => handleApprove(ngo.id)}
+                  className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-200"
+                >
+                  <FaCheck className="mr-2" /> Approve
+                </button>
+                <button
+                  onClick={() => handleReject(ngo.id)}
+                  className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200"
+                >
+                  <FaTimes className="mr-2" /> Reject
+                </button>
               </div>
-              {ngo.status === "approved" && (
-                <p className="text-green-600 mt-4">Approved</p>
-              )}
             </div>
           ))}
         </div>
       ) : (
         <p className="text-center text-gray-600">No pending registrations.</p>
+      )}
+
+      <h2 className="text-4xl font-bold text-center text-green-700 mb-8 mt-12">
+        Fund Requests
+      </h2>
+      {fundRequests.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {fundRequests.map((request) => (
+            <div
+              key={request.id}
+              className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+            >
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                {request.ngoName}
+              </h3>
+              <p className="text-gray-600">
+                <strong>Requested Amount:</strong> {request.amount}
+                <br />
+                <strong>Reason:</strong> {request.reason}
+              </p>
+              <div className="mt-4">
+                <strong>Work Proof:</strong>
+                <ul className="list-disc list-inside">
+                  {request.proofFile && (
+                    <li>
+                      <button
+                        onClick={() => window.open(request.proofFile, '_blank')}
+                        className="text-blue-600 hover:underline"
+                      >
+                        <FaFileAlt className="inline mr-2" /> View Work Proof
+                      </button>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-600">No fund requests.</p>
       )}
     </div>
   );

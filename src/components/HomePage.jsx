@@ -8,18 +8,20 @@ import FeaturedNGOs from "./FeaturedNGOs";
 import AboutUs from './AboutUs';
 import Impact from './Impact';
 import Contact from './Contact';
+import CampaignSection from './CampaignSection'; // Corrected import
 
 const HomePage = () => {
   return (
     <>
       <Hero />
+      <CampaignSection />
       <FeaturedNGOs />
       <Features />
       <HowItWorks />
       <Testimonials />
       <Impact />
       <AboutUs />
-      <Contact/>
+      <Contact />
     </>
   );
 };

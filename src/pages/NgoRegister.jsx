@@ -4,8 +4,10 @@ import { collection, setDoc, doc } from 'firebase/firestore'; // Import Firestor
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase Auth methods
 import { db } from '../Auth/firebaseConfig';
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 const storage = getStorage();
+
 const NGORegister = () => {
   const [formData, setFormData] = useState({
     ngoName: '',
@@ -37,7 +39,7 @@ const NGORegister = () => {
 
   const [logoPreview, setLogoPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false); // Add show password state
-  const nevigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -75,6 +77,7 @@ const NGORegister = () => {
         ...formData,
         status: 'pending', // Add status field for admin approval
         uid: user.uid, // Add user UID to the data
+        role: 'ngo', // Set user role to 'ngo'
       };
 
       // Upload files to Firebase Storage
@@ -132,7 +135,7 @@ const NGORegister = () => {
       });
       setLogoPreview(null); // Clear the logo preview
 
-      nevigate('/NGO-register-success');
+      navigate('/NGO-register-success');
     } catch (error) {
       console.error("Error adding document: ", error);
       alert("Error registering NGO: " + error.message);

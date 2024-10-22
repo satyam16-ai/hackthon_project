@@ -1,35 +1,36 @@
-// src/contexts/AuthContext.js
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, db } from '../Auth/firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
-const AuthContext = createContext();
+const NGOAuthContext = createContext();
 
-export function useAuth() {
-  return useContext(AuthContext);
+export function useNGOAuth() {
+  return useContext(NGOAuthContext);
 }
 
-export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
+export function NGOAuthProvider({ children }) {
+  const [currentNGO, setCurrentNGO] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userRef = doc(db, 'DONORS', user.uid); // Ensure the collection name is correct
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          setCurrentUser({
+        console.log('NGO logged in:', user);
+        const ngoRef = doc(db, 'ngoRegistrations', user.uid);
+        const ngoSnap = await getDoc(ngoRef);
+
+        if (ngoSnap.exists()) {
+          console.log('NGO role data:', ngoSnap.data());
+          setCurrentNGO({
             ...user,
-            ...userSnap.data()
+            ...ngoSnap.data(),
           });
         } else {
-          setCurrentUser(user);
+          setCurrentNGO(user);
         }
       } else {
-        setCurrentUser(null);
+        setCurrentNGO(null);
       }
       setLoading(false);
     });
@@ -42,14 +43,15 @@ export function AuthProvider({ children }) {
   };
 
   const value = {
-    currentUser,
+    currentNGO,
+    setCurrentNGO,
     logout,
     loading
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <NGOAuthContext.Provider value={value}>
       {!loading && children}
-    </AuthContext.Provider>
+    </NGOAuthContext.Provider>
   );
 }

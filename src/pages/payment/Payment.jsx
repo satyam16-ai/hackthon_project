@@ -1,18 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CSSTransition } from 'react-transition-group';
-import { FaCreditCard, FaPaypal, FaApplePay, FaGooglePay } from 'react-icons/fa';
+import { FaPaypal } from 'react-icons/fa';
 import './payment.css'; // Import the CSS for animations
-import upiIcon from '../../assets/upi-icon.svg'; // Import the UPI icon SVG
+import axios from 'axios';
 
 const Payment = () => {
   const { ngoId } = useParams(); // Get the NGO ID from the URL parameters
-  const [paymentMethod, setPaymentMethod] = useState('creditCard');
+  const [paymentMethod, setPaymentMethod] = useState('paypal');
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const handlePayment = (e) => {
+  const handlePayment = async (e) => {
     e.preventDefault();
-    setShowSuccess(true);
+
+    const formattedAmount = parseFloat(amount).toFixed(2); // Ensure amount is formatted to two decimal places
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/payments/initiate-payment', {
+        donorId: 'donor-id', // Replace with actual donor ID
+        ngoId,
+        amount: formattedAmount,
+        description,
+      });
+
+      // Redirect to PayPal approval URL
+      window.location.href = response.data.approvalUrl;
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+    }
   };
 
   useEffect(() => {
@@ -29,115 +46,28 @@ const Payment = () => {
             <label className="block text-gray-700 text-sm font-bold mb-2">Donation Amount</label>
             <input
               type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter donation amount"
               required
             />
           </div>
-
-          {paymentMethod === 'creditCard' && (
-            <>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Name on Card</label>
-                <input
-                  type="text"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter name on card"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Card Number</label>
-                <input
-                  type="text"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter card number"
-                  required
-                />
-              </div>
-              <div className="mb-4 flex space-x-4">
-                <div className="w-1/2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">Expiry Date</label>
-                  <input
-                    type="text"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="MM/YY"
-                    required
-                  />
-                </div>
-                <div className="w-1/2">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">CVV</label>
-                  <input
-                    type="text"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="CVV"
-                    required
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {paymentMethod === 'paypal' && (
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">PayPal Email</label>
-              <input
-                type="email"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="Enter PayPal email"
-                required
-              />
-            </div>
-          )}
-
-          {paymentMethod === 'applePay' && (
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Apple Pay ID</label>
-              <input
-                type="text"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="Enter Apple Pay ID"
-                required
-              />
-            </div>
-          )}
-
-          {paymentMethod === 'googlePay' && (
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Google Pay ID</label>
-              <input
-                type="text"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="Enter Google Pay ID"
-                required
-              />
-            </div>
-          )}
-
-          {paymentMethod === 'upi' && (
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">UPI ID</label>
-              <input
-                type="text"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                placeholder="Enter UPI ID"
-                required
-              />
-            </div>
-          )}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">Description</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Enter description"
+              required
+            />
+          </div>
 
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">Payment Method</label>
             <div className="flex space-x-4">
-              <button
-                type="button"
-                className={`p-4 border rounded-lg flex items-center justify-center transition-all ${
-                  paymentMethod === 'creditCard' ? 'border-green-600' : 'border-gray-300'
-                }`}
-                onClick={() => setPaymentMethod('creditCard')}
-              >
-                <FaCreditCard className="text-2xl" />
-              </button>
               <button
                 type="button"
                 className={`p-4 border rounded-lg flex items-center justify-center transition-all ${
@@ -146,33 +76,6 @@ const Payment = () => {
                 onClick={() => setPaymentMethod('paypal')}
               >
                 <FaPaypal className="text-2xl" />
-              </button>
-              <button
-                type="button"
-                className={`p-4 border rounded-lg flex items-center justify-center transition-all ${
-                  paymentMethod === 'applePay' ? 'border-green-600' : 'border-gray-300'
-                }`}
-                onClick={() => setPaymentMethod('applePay')}
-              >
-                <FaApplePay className="text-2xl" />
-              </button>
-              <button
-                type="button"
-                className={`p-4 border rounded-lg flex items-center justify-center transition-all ${
-                  paymentMethod === 'googlePay' ? 'border-green-600' : 'border-gray-300'
-                }`}
-                onClick={() => setPaymentMethod('googlePay')}
-              >
-                <FaGooglePay className="text-2xl" />
-              </button>
-              <button
-                type="button"
-                className={`p-4 border rounded-lg flex items-center justify-center transition-all ${
-                  paymentMethod === 'upi' ? 'border-green-600' : 'border-gray-300'
-                }`}
-                onClick={() => setPaymentMethod('upi')}
-              >
-                <img src={upiIcon} alt="UPI" className="h-8" />
               </button>
             </div>
           </div>

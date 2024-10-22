@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../Auth/firebaseConfig';
+import { useNGOAuth } from '../contexts/NGOAuthContext';
 
 const NgoLogin = () => {
   const navigate = useNavigate();
+  const { setCurrentNGO } = useNGOAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +28,13 @@ const NgoLogin = () => {
       if (ngoDoc.exists()) {
         const ngoData = ngoDoc.data();
         if (ngoData.status === 'approved') {
-          navigate('/ngo/dashboard');
+          console.log('NGO login successful:', ngoData);
+          setCurrentNGO({
+            ...user,
+            ...ngoData,
+            role: 'ngo'
+          });
+          navigate(`/ngo/dashboard/${user.uid}`);
         } else {
           navigate('/ngo/status-tracking');
         }

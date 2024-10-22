@@ -97,7 +97,7 @@ const DonorRegister = () => {
       }
 
       // Save user data in Firestore
-      const userDocRef = doc(db, "DONORS", user.uid); // Store by user.uid instead of name
+      const userDocRef = doc(db, "users", user.uid); // Store by user.uid instead of name
       await setDoc(userDocRef, {
         name: formData.name,
         email: formData.email,
@@ -108,6 +108,7 @@ const DonorRegister = () => {
         zipCode: formData.zipCode,
         profilePictureUrl,
         termsAccepted: formData.termsAccepted,
+        role: 'donor', // Set user role as donor
         createdAt: new Date(),
       });
 
